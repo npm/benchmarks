@@ -15,8 +15,9 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - name: checkout/benchmarks
-        uses: actions/checkout@v1
+      - uses: actions/checkout@v1
+        with:
+          path: ${{ env.RUNNER_WORKSPACE }}
       - name: use nodejs ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
