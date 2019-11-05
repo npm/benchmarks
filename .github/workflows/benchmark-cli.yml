@@ -4,7 +4,7 @@ name: Benchmark CLI
 on: repository_dispatch
 
 jobs:
-  build:
+  benchmark:
     name: Benchmark CLI
 
     strategy:
@@ -15,10 +15,12 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v1
+      - name: checkout/benchmarks
+        uses: actions/checkout@v1
         with:
           path: ${{ env.RUNNER_WORKSPACE }}
-      - uses: actions/checkout@v1
+      - name: checkout/${{ github.event.client_payload.owner }}/${{ github.event.client_payload.repo }}
+        uses: actions/checkout@v1
         with:
           repository: ${{ github.event.client_payload.owner }}/${{ github.event.client_payload.repo }}
           ref: ${{ github.event.client_payload.commit_sha }}
@@ -29,11 +31,52 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-verison }}
+
+      - name: Unlink npm/cli
+        if: github.event.client_payload.repo == 'cli'
+        run: |
+          cd "${RUNNER_WORKSPACE}/${{ github.event.client_payload.repo }}"
+          pwd
+          sudo node bin/npm-cli.js rm npm -g -f
+
+      - name: Globally link npm/cli
+        if: github.event.client_payload.repo == 'cli'
+        run: |
+          cd "${RUNNER_WORKSPACE}/${{ github.event.client_payload.repo }}"
+          pwd
+          sudo node bin/npm-cli.js link -f
+
+      - name: Validate link npm/cli
+        if: github.event.client_payload.repo == 'cli'
+        run: |
+          cd "${RUNNER_WORKSPACE}/${{ github.event.client_payload.repo }}"
+          pwd
+          echo "Command Path: $(which npm)"
+          echo "Global node_modules: "
+          ls -l "$(dirname $(which npm))/../lib/node_modules"
+          echo "PWD: $(pwd)"
+          echo "Current Commit: $(git log --oneline -1)"
+
+      - name: Run Benchmark
+        run: |
+          echo "Running benchmark..."
+          echo "PWD: $(pwd)"
+
+      - name: Post to Pull-Request
+        # if: contains(github.event.action, 'pull_request')
+        if: github.event.action == 'pull_request'
+        run: echo "Posting to pull-request..."
+
+      - name: Commit Results
+        # if: contains(github.event.action, 'push')
+        if: github.event.action == 'push'
+        run: echo "Committing results..."
+
+      # TODO: remove this step
       - name: Env
         run: |
-          set -x
-          echo "${GITHUB_WORKSPACE}"
-          pwd
+          echo "GITHUB_WORKSPACE: ${GITHUB_WORKSPACE}"
+          echo "PWD: $(pwd)"
           ls -al .
           ls -al ..
           echo "${{ toJson(github.event) }}"
