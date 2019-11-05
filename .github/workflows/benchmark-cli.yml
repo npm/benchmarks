@@ -1,0 +1,32 @@
+---
+name: Benchmark CLI
+
+on: repository_dispatch
+
+jobs:
+  build:
+    name: Benchmark CLI
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macOS-latest]
+        node-version: [10.x, 12.x]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: checkout/benchmarks
+        uses: actions/checkout@v1
+      - name: use nodejs ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-verison }}
+      - name: Env
+        run: |
+          set -x
+          echo "${GITHUB_WORKSPACE}"
+          pwd
+          ls -al .
+          ls -al ..
+          echo "${{ toJson(github.event) }}"
+          printenv
