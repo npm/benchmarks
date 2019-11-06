@@ -9,18 +9,20 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-latest, macOS-latest]
-        node-version: [10.x, 12.x]
+        # os: [ubuntu-latest, macOS-latest]
+        os: [ubuntu-latest]
+        # node-version: [10.x, 12.x]
+        node-version: [10.x]
 
     runs-on: ${{ matrix.os }}
 
     steps:
-      - name: checkout/benchmarks
-        uses: actions/checkout@v1
+      - name: checkout/npm/benchmarks
+        uses: actions/checkout@v1.1.0
         with:
           path: ${{ env.RUNNER_WORKSPACE }}
       - name: checkout/${{ github.event.client_payload.owner }}/${{ github.event.client_payload.repo }}
-        uses: actions/checkout@v1
+        uses: actions/checkout@v1.1.0
         with:
           repository: ${{ github.event.client_payload.owner }}/${{ github.event.client_payload.repo }}
           ref: ${{ github.event.client_payload.commit_sha }}
@@ -35,27 +37,28 @@ jobs:
       - name: Install benchmark deps
         run: |
           cd "${GITHUB_WORKSPACE}"
-          npm install --production
+          echo "PWD: $(pwd)"
+          npm --loglevel=silly install --production
 
       - name: Unlink npm/cli
         if: github.event.client_payload.repo == 'cli'
         run: |
           cd "${RUNNER_WORKSPACE}/${{ github.event.client_payload.repo }}"
-          pwd
+          echo "PWD: $(pwd)"
           sudo node bin/npm-cli.js rm npm -g -f
 
       - name: Globally link npm/cli
         if: github.event.client_payload.repo == 'cli'
         run: |
           cd "${RUNNER_WORKSPACE}/${{ github.event.client_payload.repo }}"
-          pwd
+          echo "PWD: $(pwd)"
           sudo node bin/npm-cli.js link -f
 
       - name: Validate link npm/cli
         if: github.event.client_payload.repo == 'cli'
         run: |
           cd "${RUNNER_WORKSPACE}/${{ github.event.client_payload.repo }}"
-          pwd
+          echo "PWD: $(pwd)"
           echo "Command Path: $(which npm)"
           echo "Global node_modules: "
           ls -l "$(dirname $(which npm))/../lib/node_modules"
@@ -79,8 +82,28 @@ jobs:
 
       - name: Commit Results
         # if: contains(github.event.action, 'push')
-        if: github.event.action == 'push'
-        run: echo "Committing results..."
+        # if: github.event.action == 'push' && matrix.os == 'ubuntu-latest' && matrix.node-verison == '10.x'
+        if: github.event.action == 'push' && matrix.os == 'ubuntu-latest' && matrix.node-version == '10.x'
+        env:
+          REPO: ${{ github.event.client_payload.repo }}
+          OWNER: ${{ github.event.client_payload.owner }}
+        run: |
+          set -x
+          cd "${GITHUB_WORKSPACE}"
+          echo "OS: ${{ matrix.os }}"
+          echo "NODE-VERSION: ${{ matrix.node-version }}"
+          echo "Committing results..."
+          echo "PWD: $(pwd)"
+          git remote -v
+          git status
+          git checkout -b master --track origin/master
+          git config user.email "ops+npm-deploy-user@npmjs.com"
+          git config user.name "beep boop I am a robot"
+          git config --list
+          git add results/
+          git commit -m "ci: updated results [CI/CD]"
+          git log --oneline -3
+          git push origin master
 
       # TODO: remove this step
       - name: Env
