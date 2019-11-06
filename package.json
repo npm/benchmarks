@@ -10,6 +10,7 @@
     "@octokit/rest": "^16.34.1",
     "dedent": "^0.7.0",
     "npmlog": "^4.1.2",
+    "pretty-ms": "^5.0.0",
     "rimraf": "^3.0.0"
   },
   "devDependencies": {
