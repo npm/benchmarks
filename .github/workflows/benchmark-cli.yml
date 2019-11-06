@@ -73,10 +73,20 @@ jobs:
           echo "Current Commit: $(git log --oneline -1)"
 
       # Run benchmarking suite
-      - name: Run Benchmark
+      - name: Run Benchmark (Pull-Request)
+        if: github.event.action == 'pull_request'
         run: |
           echo "Running benchmark..."
           echo "PWD: $(pwd)"
+          npm run benchmark:pr
+
+      # Run benchmarking suite
+      - name: Run Benchmark (Push)
+        if: github.event.action == 'push'
+        run: |
+          echo "Running benchmark..."
+          echo "PWD: $(pwd)"
+          npm run benchmark:release
 
       # CONDITIONALLY: Post to pull-request
       - name: Post to Pull-Request
@@ -86,7 +96,9 @@ jobs:
           REPO: ${{ github.event.client_payload.repo }}
           OWNER: ${{ github.event.client_payload.owner }}
           GITHUB_TOKEN: ${{ github.token }}
-        run: echo "Posting to pull-request..."
+        run: |
+          echo "Posting to pull-request..."
+          npm run comment
 
       # CONDITIONALLY: Commit results of benchmark suite into `npm/benchmark` repo
       - name: Commit Results
