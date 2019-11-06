@@ -70,6 +70,11 @@ jobs:
       - name: Post to Pull-Request
         # if: contains(github.event.action, 'pull_request')
         if: github.event.action == 'pull_request'
+        env:
+          PR_ID: ${{ github.event.client_payload.pr_id }}
+          REPO: ${{ github.event.client_payload.repo }}
+          OWNER: ${{ github.event.client_payload.owner }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: echo "Posting to pull-request..."
 
       - name: Commit Results
