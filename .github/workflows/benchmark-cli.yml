@@ -32,6 +32,11 @@ jobs:
         with:
           node-version: ${{ matrix.node-verison }}
 
+      - name: Install benchmark deps
+        run: |
+          cd "${GITHUB_WORKSPACE}"
+          npm install --production
+
       - name: Unlink npm/cli
         if: github.event.client_payload.repo == 'cli'
         run: |
