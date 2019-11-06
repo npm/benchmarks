@@ -16,7 +16,9 @@
     "standard": "^12.0.1"
   },
   "scripts": {
-    "benchmark": "node index.js",
+    "benchmark:pr": "node index.js benchmark",
+    "benchmark:release": "node index.js benchmark latest",
+    "comment": "node index.js comment",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
