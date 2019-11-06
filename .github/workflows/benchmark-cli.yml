@@ -17,10 +17,12 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
+      # Checkout `npm/benchmark` repo
       - name: checkout/npm/benchmarks
         uses: actions/checkout@v1.1.0
         with:
           path: ${{ env.RUNNER_WORKSPACE }}
+      # Checkout repo incoming dispatch request is from (npm/cli)
       - name: checkout/${{ github.event.client_payload.owner }}/${{ github.event.client_payload.repo }}
         uses: actions/checkout@v1.1.0
         with:
@@ -29,17 +31,20 @@ jobs:
           fetch-depth: 1
           token: ${{ secrets.NPM_DEPLOY_USER_PAT }}
           path: ${{ env.RUNNER_WORKSPACE }}
+      # Setup nodejs
       - name: use nodejs ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-verison }}
 
+      # Install npm/benchmark dependencies
       - name: Install benchmark deps
         run: |
           cd "${GITHUB_WORKSPACE}"
           echo "PWD: $(pwd)"
           npm --loglevel=silly install --production
 
+      # CONDITIONALLY: `npm/cli` unlink the binary
       - name: Unlink npm/cli
         if: github.event.client_payload.repo == 'cli'
         run: |
@@ -47,6 +52,7 @@ jobs:
           echo "PWD: $(pwd)"
           sudo node bin/npm-cli.js rm npm -g -f
 
+      # CONDITIONALLY: `npm/cli` globally link the binary
       - name: Globally link npm/cli
         if: github.event.client_payload.repo == 'cli'
         run: |
@@ -54,6 +60,7 @@ jobs:
           echo "PWD: $(pwd)"
           sudo node bin/npm-cli.js link -f
 
+      # CONDITIONALLY: `npm/cli` validate the binary is linked
       - name: Validate link npm/cli
         if: github.event.client_payload.repo == 'cli'
         run: |
@@ -65,13 +72,14 @@ jobs:
           echo "PWD: $(pwd)"
           echo "Current Commit: $(git log --oneline -1)"
 
+      # Run benchmarking suite
       - name: Run Benchmark
         run: |
           echo "Running benchmark..."
           echo "PWD: $(pwd)"
 
+      # CONDITIONALLY: Post to pull-request
       - name: Post to Pull-Request
-        # if: contains(github.event.action, 'pull_request')
         if: github.event.action == 'pull_request'
         env:
           PR_ID: ${{ github.event.client_payload.pr_id }}
@@ -80,9 +88,8 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         run: echo "Posting to pull-request..."
 
+      # CONDITIONALLY: Commit results of benchmark suite into `npm/benchmark` repo
       - name: Commit Results
-        # if: contains(github.event.action, 'push')
-        # if: github.event.action == 'push' && matrix.os == 'ubuntu-latest' && matrix.node-verison == '10.x'
         if: github.event.action == 'push' && matrix.os == 'ubuntu-latest' && matrix.node-version == '10.x'
         env:
           REPO: ${{ github.event.client_payload.repo }}
