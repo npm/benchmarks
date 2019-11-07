@@ -121,13 +121,3 @@ jobs:
           git commit -m "ci: updated results [CI/CD]"
           git log --oneline -3
           git push origin master
-
-      # TODO: remove this step
-      - name: Env
-        run: |
-          echo "GITHUB_WORKSPACE: ${GITHUB_WORKSPACE}"
-          echo "PWD: $(pwd)"
-          ls -al .
-          ls -al ..
-          echo "${{ toJson(github.event) }}"
-          printenv
