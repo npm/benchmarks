@@ -92,12 +92,12 @@ jobs:
 
       # CONDITIONALLY: Post to pull-request
       - name: Post to Pull-Request
-        if: github.event.action == 'pull_request'
+        if: github.event.action == 'pull_request' && matrix.os == 'ubuntu-latest' && matrix.node-version == '12.x'
         env:
           PR_ID: ${{ github.event.client_payload.pr_id }}
           REPO: ${{ github.event.client_payload.repo }}
           OWNER: ${{ github.event.client_payload.owner }}
-          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ secrets.NPM_DEPLOY_USER_PAT }}
           LOG_LEVEL: verbose
         run: |
           echo "Posting to pull-request..."
@@ -105,7 +105,7 @@ jobs:
 
       # CONDITIONALLY: Commit results of benchmark suite into `npm/benchmark` repo
       - name: Commit Results
-        if: github.event.action == 'push' && matrix.os == 'ubuntu-latest' && matrix.node-version == '10.x'
+        if: github.event.action == 'push' && matrix.os == 'ubuntu-latest' && matrix.node-version == '12.x'
         env:
           REPO: ${{ github.event.client_payload.repo }}
           OWNER: ${{ github.event.client_payload.owner }}
