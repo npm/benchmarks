@@ -14,12 +14,12 @@ const { PR_ID, REPO, OWNER } = process.env
 switch (command) {
   case 'benchmark':
     log.info('Executing benchmark against latest release')
-    execute(!!isRelease)
+    execute(!!isRelease).catch(() => process.exit(1))
     break
   case 'comment':
     // TODO: bail out if we don't have correct environment variables
     log.info(`Posting Comment to ${OWNER}/${REPO}/pulls/${PR_ID}`)
-    comment()
+    comment().catch(() => process.exit(1))
     break
   default:
     log.error('Invalid argument supplied...')
