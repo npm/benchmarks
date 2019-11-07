@@ -73,6 +73,8 @@ jobs:
       # Run benchmarking suite
       - name: Run Benchmark (Pull-Request)
         if: github.event.action == 'pull_request'
+        env:
+          LOG_LEVEL: verbose
         run: |
           echo "Running benchmark..."
           echo "PWD: $(pwd)"
@@ -81,6 +83,8 @@ jobs:
       # Run benchmarking suite
       - name: Run Benchmark (Push)
         if: github.event.action == 'push'
+        env:
+          LOG_LEVEL: verbose
         run: |
           echo "Running benchmark..."
           echo "PWD: $(pwd)"
@@ -94,6 +98,7 @@ jobs:
           REPO: ${{ github.event.client_payload.repo }}
           OWNER: ${{ github.event.client_payload.owner }}
           GITHUB_TOKEN: ${{ github.token }}
+          LOG_LEVEL: verbose
         run: |
           echo "Posting to pull-request..."
           npm run comment
