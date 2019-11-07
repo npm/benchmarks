@@ -1,0 +1,60 @@
+[
+  {
+    "initial install": {
+      "angular-quickstart": 30811,
+      "app-large": 35246,
+      "app-medium": 29939,
+      "ember-quickstart": 21210,
+      "react-app": 26683
+    },
+    "repeat install": {
+      "angular-quickstart": 6470,
+      "app-large": 5472,
+      "app-medium": 5021,
+      "ember-quickstart": 4405,
+      "react-app": 5134
+    },
+    "with warm cache": {
+      "angular-quickstart": 26246,
+      "app-large": 28782,
+      "app-medium": 24411,
+      "ember-quickstart": 16512,
+      "react-app": 22088
+    },
+    "with node_modules": {
+      "angular-quickstart": 5968,
+      "app-large": 4874,
+      "app-medium": 4628,
+      "ember-quickstart": 4215,
+      "react-app": 4995
+    },
+    "with lockfile": {
+      "angular-quickstart": 22441,
+      "app-large": 23821,
+      "app-medium": 19189,
+      "ember-quickstart": 13879,
+      "react-app": 18536
+    },
+    "with warm cache and node_modules": {
+      "angular-quickstart": 5434,
+      "app-large": 6209,
+      "app-medium": 4448,
+      "ember-quickstart": 4054,
+      "react-app": 4701
+    },
+    "with warm cache and lockfile": {
+      "angular-quickstart": 17935,
+      "app-large": 19273,
+      "app-medium": 15355,
+      "ember-quickstart": 11512,
+      "react-app": 14882
+    },
+    "with node_modules and lockfile": {
+      "angular-quickstart": 5699,
+      "app-large": 5355,
+      "app-medium": 4865,
+      "ember-quickstart": 4409,
+      "react-app": 5475
+    }
+  }
+]
