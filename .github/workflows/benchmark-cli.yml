@@ -26,7 +26,6 @@ jobs:
         with:
           repository: ${{ github.event.client_payload.owner }}/${{ github.event.client_payload.repo }}
           ref: ${{ github.event.client_payload.commit_sha }}
-          fetch-depth: 1
           token: ${{ secrets.NPM_DEPLOY_USER_PAT }}
           path: ${{ env.RUNNER_WORKSPACE }}
       # Setup nodejs
