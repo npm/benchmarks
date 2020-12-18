@@ -1,74 +1,89 @@
 #!/usr/bin/env bash
 
+set -euo pipefail
+
 packageManager=$1
-cleanType=$2
+# the benchmark passed in includes flags, so we take only up to the
+# first : character for this script
+benchmark=$2
+dir=$3
+cleanType=${benchmark%%:*}
 
 # if the source exists, move it to a .temp suffixed location
 # if the suffixed location already exists, just remove the source
 remove () {
-  local source="$1"
-  if [ -e "$source" ]; then
-    if [ -e "${source}.temp" ]; then
-      rm -rf "$source"
-    else
-      mv "$source" "${source}.temp"
+  while [ "${1-}" != "" ]; do
+    local source="$1"
+    if [ -e "$source" ]; then
+      if [ -e "${source}.${packageManager}.temp" ]; then
+        rm -rf "$source"
+      else
+        mv "$source" "${source}.${packageManager}.temp"
+      fi
     fi
-  fi
+    shift
+  done
 }
 
 # if the source already exists, do nothing
 # if the .temp suffixed source exists, move it to the source location
 restore () {
-  local source="$1"
-  if [ -e "$source" ]; then
-    true
-  elif [ -e "${source}.temp" ]; then
-    mv "${source}.temp" "$source"
-  fi
+  while [ "${1-}" != "" ]; do
+    local source="$1"
+    if [ -e "${source}.${packageManager}.temp" ]; then
+      rm -rf "$source"
+      mv "${source}.${packageManager}.temp" "$source"
+    fi
+    shift
+  done
 }
 
-pushd fixtures/"$3"
+pushd fixtures/"$dir"
+
+escapedManager=${packageManager//\//_}
+if [[ ! -f ".prepared-${escapedManager}" ]]; then
+  # pre-install the requested package manager
+  npm i -g "$packageManager"
+  rm -rf cache node_modules package-lock.json yarn.lock
+  if [[ "$packageManager" =~ "npm/cli" ]]; then
+    npmVersion=$(npm -v)
+    npmMajor=${npmVersion%%.*}
+    echo -n "npm@${npmMajor}" > ".prepared-${escapedManager}"
+  else
+    echo -n "$packageManager" > ".prepared-${escapedManager}"
+  fi
+fi
 
 case $cleanType in
   clean)
-    remove cache
-    remove node_modules
-    remove package-lock.json
+    remove cache node_modules package-lock.json yarn.lock pnpm-lock.yaml
     ;;
   lock-only)
-    remove cache
-    remove node_modules
-    restore package-lock.json
+    remove cache node_modules
+    restore package-lock.json yarn.lock pnpm-lock.yaml
     ;;
   cache-only)
-    remove node_modules
-    remove package-lock.json
+    remove node_modules package-lock.json yarn.lock pnpm-lock.yaml
     restore cache
     ;;
   modules-only)
-    remove cache
-    remove package-lock.json
+    remove cache package-lock.json yarn.lock pnpm-lock.yaml
     restore node_modules
     ;;
   no-lock)
-    remove package-lock.json
-    restore cache
-    restore node_modules
+    remove package-lock.json yarn.lock pnpm-lock.yaml
+    restore cache node_modules
     ;;
   no-cache)
     remove cache
-    restore node_modules
-    restore package-lock.json
+    restore node_modules package-lock.json yarn.lock pnpm-lock.yaml
     ;;
   no-modules)
     remove node_modules
-    restore cache
-    restore package-lock.json
+    restore cache package-lock.json yarn.lock pnpm-lock.yaml
     ;;
   no-clean)
-    restore cache
-    restore node_modules
-    restore package-lock.json
+    restore cache node_modules package-lock.json yarn.lock pnpm-lock.yaml
     ;;
 esac
 
