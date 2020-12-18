@@ -24,5 +24,10 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: 14.x
-      - run: ./benchmark.sh -m ${{ inputs.managers }} -b ${{ inputs.benchmarks }} -f ${{ inputs.fixtures }}
+      - name: install hyperfine
+        run: |
+          wget https://github.com/sharkdp/hyperfine/releases/download/v1.11.0/hyperfine_1.11.0_amd64.deb
+          sudo dpkg -i hyperfine_1.11.0_amd64.deb
+      - name: run benchmarks
+        run: ./benchmark.sh -m ${{ inputs.managers }} -b ${{ inputs.benchmarks }} -f ${{ inputs.fixtures }}
         shell: bash
