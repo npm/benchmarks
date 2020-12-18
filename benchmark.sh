@@ -7,7 +7,7 @@ allManagers="npm@6,npm@7,yarn@latest,pnpm@latest"
 # the benchmark names
 allBenchmarks="clean,lock-only,cache-only,cache-only:legacy-peer-deps,modules-only,no-lock,no-cache,no-modules,no-clean,no-clean:audit"
 # a list of all fixtures contained in the repo, comma separated
-allFixtures=$(find ./fixtures -type d -depth 1 -exec basename {} + | xargs | sed 's/ /,/g')
+allFixtures=$(find ./fixtures -type d -mindepth 1 -maxdepth 1 -exec basename {} + | xargs | sed 's/ /,/g')
 
 print_help () {
   echo ""
