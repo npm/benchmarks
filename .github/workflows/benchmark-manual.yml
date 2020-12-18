@@ -31,5 +31,5 @@ jobs:
           wget https://github.com/sharkdp/hyperfine/releases/download/v1.11.0/hyperfine_1.11.0_amd64.deb
           sudo dpkg -i hyperfine_1.11.0_amd64.deb
       - name: run benchmarks
-        run: ./benchmark.sh -m ${{ github.events.inputs.managers }} -b ${{ github.events.inputs.benchmarks }} -f ${{ github.events.inputs.fixtures }}
+        run: ./benchmark.sh -m ${{ github.event.inputs.managers }} -b ${{ github.event.inputs.benchmarks }} -f ${{ github.event.inputs.fixtures }}
         shell: bash
