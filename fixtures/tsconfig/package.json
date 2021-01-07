@@ -1,0 +1,30 @@
+{
+  "name": "@kensho-technologies/tsconfig",
+  "version": "1.0.0",
+  "description": "Shared TypeScript config used across Kensho projects",
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "tsconfig.json",
+  "tsconfig": "tsconfig.json",
+  "files": [
+    "tsconfig.json"
+  ],
+  "scripts": {
+    "fix": "prettier -w .",
+    "test": "prettier -c . && tsc -p fixtures"
+  },
+  "repository": "kensho-technologies/tsconfig",
+  "author": "Kensho Technologies, LLC.",
+  "license": "Apache-2.0",
+  "prettier": "@kensho-technologies/prettier-config",
+  "peerDependencies": {
+    "typescript": "^4.0.0"
+  },
+  "devDependencies": {
+    "@kensho-technologies/prettier-config": "^1.0.0",
+    "@types/react": "^16.9.53",
+    "prettier": "^2.1.2",
+    "react": "^17.0.0"
+  }
+}
