@@ -3,7 +3,7 @@
 set -euo pipefail
 
 # the full set of package managers to run against
-allManagers="npm@6,npm@7,yarn@latest,pnpm@latest"
+allManagers="npm@6,npm@7,yarn,pnpm"
 # the benchmark names
 allBenchmarks="clean,lock-only,cache-only,cache-only:legacy-peer-deps,modules-only,no-lock,no-cache,no-modules,no-clean,no-clean:audit"
 # a list of all fixtures contained in the repo, comma separated
@@ -59,6 +59,34 @@ done
 [ "$managers" = "" ] || [ "$managers" = "all" ] && managers="$allManagers"
 [ "$benchmarks" = "" ] || [ "$benchmarks" = "all" ] && benchmarks="$allBenchmarks"
 [ "$fixtures" = "" ] || [ "$fixtures" = "all" ] && fixtures="$allFixtures"
+
+echo "pre-installing package managers..."
+npm install --no-fund --no-audit --no-progress --loglevel=error
+echo "$managers" | sed -n 1'p' | tr ',' '\n' | while read manager; do
+  name=${manager%%@*}
+  spec=${manager#*@}
+  [ "$spec" = "" ] || [ "$spec" = "$name" ] && spec="latest"
+  if [[ "$spec" =~ \#pull/([0-9]+)/head ]]; then
+    slug=${name}_pull${BASH_REMATCH[1]}
+    # here we can pass the spec as-is, because it's a git reference which will alias neatly on its own
+    pkg=${slug}@${spec}
+  else
+    slug=${name}${spec////_}
+    # whereas here we use an explicit npm: styled alias
+    pkg=${slug}@npm:${name}@${spec}
+  fi
+
+  if [ "$slug" != "npm6" -a "$slug" != "npm7" -a "$slug" != "yarnlatest" -a "$slug" != "pnpmlatest" ]; then
+    echo "installing $name as $pkg"
+    npm install --no-fund --no-audit --no-save --no-progress --loglevel=error $pkg
+  fi
+done
+echo "installed versions:"
+echo "  npm6 -- `./node_modules/npm6/bin/npm-cli.js --version`"
+echo "  npm7 -- `./node_modules/npm7/bin/npm-cli.js --version`"
+echo "  yarn -- `./node_modules/yarn/bin/yarn.js --version`"
+echo "  pnpm -- `./node_modules/pnpm/bin/pnpm.js --version`"
+echo ""
 
 echo "starting benchmarks..."
 echo "  package managers: $managers"

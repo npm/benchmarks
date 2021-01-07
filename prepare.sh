@@ -9,16 +9,25 @@ benchmark=$2
 dir=$3
 cleanType=${benchmark%%:*}
 
+name=${packageManager%%@*}
+spec=${packageManager#*@}
+[ "$spec" = "" ] || [ "$spec" = "$name" ] && spec="latest"
+if [[ "$spec" =~ \#pull/([0-9]+)/head ]]; then
+  slug=${name}_pull${BASH_REMATCH[1]}
+else
+  slug=${name}${spec////_}
+fi
+
 # if the source exists, move it to a .temp suffixed location
 # if the suffixed location already exists, just remove the source
 remove () {
   while [ "${1-}" != "" ]; do
     local source="$1"
     if [ -e "$source" ]; then
-      if [ -e "${source}.${packageManager}.temp" ]; then
+      if [ -e "${source}.${slug}.temp" ]; then
         rm -rf "$source"
       else
-        mv "$source" "${source}.${packageManager}.temp"
+        mv "$source" "${source}.${slug}.temp"
       fi
     fi
     shift
@@ -30,9 +39,9 @@ remove () {
 restore () {
   while [ "${1-}" != "" ]; do
     local source="$1"
-    if [ -e "${source}.${packageManager}.temp" ]; then
+    if [ -e "${source}.${slug}.temp" ]; then
       rm -rf "$source"
-      mv "${source}.${packageManager}.temp" "$source"
+      mv "${source}.${slug}.temp" "$source"
     fi
     shift
   done
@@ -40,17 +49,14 @@ restore () {
 
 pushd fixtures/"$dir"
 
-escapedManager=${packageManager//\//_}
-if [[ ! -f ".prepared-${escapedManager}" ]]; then
-  # pre-install the requested package manager
-  npm i -g "$packageManager"
+if [[ ! -f ".prepared-${slug}" ]]; then
   rm -rf cache node_modules package-lock.json yarn.lock
-  if [[ "$packageManager" =~ "npm/cli" ]]; then
+  if [[ "$slug" =~ "npm_pull" ]]; then
     npmVersion=$(npm -v)
     npmMajor=${npmVersion%%.*}
-    echo -n "npm@${npmMajor}" > ".prepared-${escapedManager}"
+    echo -n "npm@${npmMajor}" > ".prepared-${slug}"
   else
-    echo -n "$packageManager" > ".prepared-${escapedManager}"
+    echo -n "$packageManager" > ".prepared-${slug}"
   fi
 fi
 
