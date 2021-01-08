@@ -1,0 +1,45 @@
+{
+  "name": "@kensho-technologies/eslint-config",
+  "version": "21.0.0",
+  "description": "Standard Kensho config to lint JS files.",
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "index.js",
+  "author": "Kensho Technologies, LLC.",
+  "license": "Apache-2.0",
+  "repository": "kensho-technologies/eslint-config",
+  "scripts": {
+    "fix": "prettier -w . && eslint --fix .",
+    "test": "prettier -c . && eslint . && jest",
+    "prepublishOnly": "npm test"
+  },
+  "files": [
+    "index.js"
+  ],
+  "prettier": "@kensho-technologies/prettier-config",
+  "peerDependencies": {
+    "@babel/eslint-parser": "^7.12.1",
+    "@typescript-eslint/eslint-plugin": "^4.5.0",
+    "@typescript-eslint/parser": "^4.5.0",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-jsdoc": "^30.7.3",
+    "eslint-plugin-jsx-a11y": "^6.3.1",
+    "eslint-plugin-react": "^7.21.5",
+    "eslint-plugin-react-hooks": "^4.2.0"
+  },
+  "dependencies": {
+    "eslint-config-airbnb": "^18.2.0",
+    "eslint-config-prettier": "^6.13.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.12.3",
+    "@kensho-technologies/babel-preset": "^13.2.0",
+    "@kensho-technologies/prettier-config": "^1.0.0",
+    "eslint": "^7.11.0",
+    "jest": "^26.6.0",
+    "prettier": "^2.1.2",
+    "react": "^17.0.0",
+    "typescript": "^4.0.3"
+  }
+}

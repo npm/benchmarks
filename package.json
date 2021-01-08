@@ -1,35 +1,11 @@
 {
   "name": "benchmarks",
-  "version": "1.0.0",
-  "description": "Benchmarking Repository",
-  "main": "index.js",
-  "directories": {
-    "lib": "lib"
-  },
+  "description": "the npm cli benchmarking suite",
   "dependencies": {
-    "@octokit/rest": "^16.34.1",
-    "dedent": "^0.7.0",
-    "npmlog": "^4.1.2",
-    "pretty-ms": "^5.0.0",
-    "rimraf": "^3.0.0"
-  },
-  "devDependencies": {
-    "standard": "^12.0.1"
-  },
-  "scripts": {
-    "benchmark:pr": "node index.js benchmark",
-    "benchmark:release": "node index.js benchmark latest",
-    "comment": "node index.js comment",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/npm/benchmarks.git"
-  },
-  "author": "Michael Perrotte <mike@npmjs.com>",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/npm/benchmarks/issues"
-  },
-  "homepage": "https://github.com/npm/benchmarks#readme"
+    "@octokit/rest": "^18.0.12",
+    "npm6": "npm:npm@^6.14.10",
+    "npm7": "npm:npm@^7.3.0",
+    "pnpm": "latest",
+    "yarn": "latest"
+  }
 }
