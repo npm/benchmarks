@@ -12,6 +12,8 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: 14.x
+      - name: update npm
+        run: sudo npm i -g npm@7
       - name: install hyperfine
         run: |
           wget https://github.com/sharkdp/hyperfine/releases/download/v1.11.0/hyperfine_1.11.0_amd64.deb
