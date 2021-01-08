@@ -47,7 +47,7 @@ restore () {
   done
 }
 
-pushd fixtures/"$dir"
+pushd fixtures/${dir}
 
 if [[ ! -f ".prepared-${slug}" ]]; then
   rm -rf cache node_modules package-lock.json yarn.lock
