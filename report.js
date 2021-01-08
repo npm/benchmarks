@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const Octokit = require('@octokit/rest')
+const { Octokit } = require('@octokit/rest')
 
 const { readFileSync: readFile } = require('fs')
 const { join } = require('path')
