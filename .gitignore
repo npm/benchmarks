@@ -64,3 +64,5 @@ typings/
 
 # temp files
 **/*.temp
+
+results/temp
