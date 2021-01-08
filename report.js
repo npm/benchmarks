@@ -152,14 +152,12 @@ const postComment = async () => {
   console.log('writing report to pull request')
   const octokit = new Octokit({ auth: GITHUB_TOKEN })
 
-  const options = octokit.issues.listComments.endpoint.merge({
-    owner: OWNER,
-    repo: REPO,
-    issue_number: PR_ID
-  })
-
   try {
-    const comments = await octokit.paginate(options)
+    const comments = await octokit.paginate(octokit.issues.listComments, {
+      owner: OWNER,
+      repo: REPO,
+      issue_number: PR_ID
+    })
     const updateComment = comments.find((comment) => comment.user.login === 'npm-deploy-user')
 
     if (updateComment) {
