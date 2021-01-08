@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 set -euo pipefail
+trap times EXIT
 
 # the full set of package managers to run against
 allManagers="npm@6,npm@7,yarn,pnpm"
@@ -19,6 +20,7 @@ print_help () {
   echo "  -m   comma separated list of package managers, defaults to \"all\""
   echo "  -b   comma separated list of benchmarks, defaults to \"all\""
   echo "  -f   comma separated list of fixtures, defaults to \"all\""
+  echo "  -r   generate a report. when run in a github action will also post the report to the relevant pull request"
   echo ""
 }
 
@@ -27,8 +29,9 @@ benchmarks=""
 fixtures=""
 output="--style basic"
 save=""
+report="no"
 
-while getopts "hvsm:b:f:" arg; do
+while getopts "hvsrm:b:f:" arg; do
   case "$arg" in
     h)
       print_help
@@ -38,6 +41,10 @@ while getopts "hvsm:b:f:" arg; do
       output="--show-output"
       ;;
     s)
+      save="--export-json $OPTARG"
+      ;;
+    r)
+      report="yes"
       save="--export-json results/temp/results.json"
       ;;
     m)
@@ -61,7 +68,7 @@ done
 [ "$fixtures" = "" ] || [ "$fixtures" = "all" ] && fixtures="$allFixtures"
 
 echo "pre-installing package managers..."
-npm install --no-fund --no-audit --no-progress --loglevel=error
+npm ci --no-fund --no-audit --no-progress --loglevel=error
 echo "$managers" | sed -n 1'p' | tr ',' '\n' | while read manager; do
   name=${manager%%@*}
   spec=${manager#*@}
@@ -108,8 +115,8 @@ if hyperfine $output \
   --prepare './prepare.sh {manager} {benchmark} {fixture}' \
   './execute.sh {manager} {benchmark} {fixture}'; then
 
-  if [ "$save" != "" ]; then
-    echo "saving results..."
+  if [ "$report" = "yes" ]; then
+    node report.js "$managers"
   fi
 else
   result=$?
