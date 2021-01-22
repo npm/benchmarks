@@ -56,14 +56,14 @@ case $packageManager in
   yarn)
     case $flags in
       audit)
-        exec ../../node_modules/yarn/bin/yarn.js install --audit --ignore-scripts --cache-folder ./cache
+        exec ../../node_modules/yarn/bin/yarn.js --audit --ignore-scripts --cache-folder ./cache
         ;;
       legacy-peer-deps)
         # no way to turn off installing peer deps
         exec false
         ;;
       *)
-        exec ../../node_modules/yarn/bin/yarn.js install --ignore-scripts --cache-folder ./cache
+        exec ../../node_modules/yarn/bin/yarn.js --ignore-scripts --cache-folder ./cache
     esac
     ;;
   pnpm)
