@@ -66,4 +66,5 @@ typings/
 **/*.temp
 
 /temp
+/managers
 results/temp

@@ -3,9 +3,9 @@
   "description": "the npm cli benchmarking suite",
   "dependencies": {
     "@octokit/rest": "^18.0.12",
-    "npm6": "npm:npm@^6.14.10",
-    "npm7": "npm:npm@^7.3.0",
-    "pnpm": "latest",
-    "yarn": "latest"
+    "npm-package-arg": "^8.1.0",
+    "rimraf": "^3.0.2",
+    "semver": "^7.3.4",
+    "yargs": "^16.2.0"
   }
 }
