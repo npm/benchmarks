@@ -53,14 +53,14 @@ const { argv } = yargs(hideBin(process.argv))
   .option('b', {
     alias: 'benchmarks',
     default: defaultBenchmarks,
-    choices: defaultBenchmarks,
+    choices: ['all', ...defaultBenchmarks],
     describe: 'the benchmarks to run',
     type: 'array',
   })
   .option('f', {
     alias: 'fixtures',
     default: defaultFixtures,
-    choices: defaultFixtures,
+    choices: ['all', ...defaultFixtures],
     describe: 'which fixtures to run the given benchmarks against',
     type: 'array',
   })
@@ -77,6 +77,15 @@ const { argv } = yargs(hideBin(process.argv))
     type: 'boolean',
   })
   .help()
+
+if (argv.managers.includes('all'))
+  argv.managers = defaultManagers
+
+if (argv.benchmarks.includes('all'))
+  argv.benchmarks = defaultBenchmarks
+
+if (argv.fixtures.includes('all'))
+  argv.fixtures = defaultFixtures
 
 if (argv.report && argv.managers.length !== 2) {
   console.error('report mode requires exactly 2 managers')
