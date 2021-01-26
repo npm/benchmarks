@@ -27,3 +27,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.NPM_DEPLOY_USER_PAT }}
         run: ./benchmark.js -m npm@7 npm@npm/cli#pull/${PR_ID}/head -f app-large app-medium -r
         shell: bash
+      - uses: actions/upload-artifact@v2
+        with:
+          name: results
+          path: results/temp/

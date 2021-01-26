@@ -4,15 +4,15 @@ on:
   workflow_dispatch:
     inputs:
       managers:
-        description: 'Comma separated list of package managers to benchmark'
+        description: 'Space separated list of package managers to benchmark'
         required: true
         default: 'all'
       benchmarks:
-        description: 'Command separated list of benchmarks to be executed'
+        description: 'Space separated list of benchmarks to be executed'
         required: true
         default: 'all'
       fixtures:
-        description: 'Comma separated list of fixtures to benchmark against'
+        description: 'Space separated list of fixtures to benchmark against'
         required: true
         default: 'all'
 jobs:
@@ -29,5 +29,9 @@ jobs:
           wget https://github.com/sharkdp/hyperfine/releases/download/v1.11.0/hyperfine_1.11.0_amd64.deb
           sudo dpkg -i hyperfine_1.11.0_amd64.deb
       - name: run benchmarks
-        run: ./benchmark.js -m ${{ github.event.inputs.managers }} -b ${{ github.event.inputs.benchmarks }} -f ${{ github.event.inputs.fixtures }}
+        run: ./benchmark.js -m ${{ github.event.inputs.managers }} -b ${{ github.event.inputs.benchmarks }} -f ${{ github.event.inputs.fixtures }} -g
         shell: bash
+      - uses: actions/upload-artifact@v2
+        with:
+          name: results
+          path: results/temp/
