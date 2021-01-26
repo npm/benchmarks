@@ -25,5 +25,9 @@ jobs:
           REPO: ${{ github.event.client_payload.repo }}
           OWNER: ${{ github.event.client_payload.owner }}
           GITHUB_TOKEN: ${{ secrets.NPM_DEPLOY_USER_PAT }}
-        run: ./benchmark.sh -m npm@7,npm@npm/cli#pull/${PR_ID}/head -f app-large,app-medium -r
+        run: ./benchmark.js -m npm@7 npm@npm/cli#pull/${PR_ID}/head -f app-large app-medium -r
         shell: bash
+      - uses: actions/upload-artifact@v2
+        with:
+          name: results
+          path: results/temp/
