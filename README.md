@@ -16,7 +16,7 @@ List of package managers to benchmark (must be npm installable strings)
 
 Type: `Array`
 
-Options: `angular-quickstart`, `app-large`, `app-medium`, `ember-quickstart`, `eslint-config`, `mixcreant`, `react-app`, `tsconfig`
+Options: `all`, `angular-quickstart`, `app-large`, `app-medium`, `ember-quickstart`, `eslint-config`, `mixcreant`, `react-app`, `tsconfig`
 
 List of fixtures to run the given benchmarks against
 
@@ -24,7 +24,7 @@ List of fixtures to run the given benchmarks against
 
 Type: `Array`
 
-Options: `clean`, `lock-only`, `cache-only`, `modules-only`, `no-lock`, `no-cache`, `no-modules`, `no-clean`
+Options: `all`, `clean`, `lock-only`, `cache-only`, `modules-only`, `no-lock`, `no-cache`, `no-modules`, `no-clean`
 
 List of benchmarks to run
 
