@@ -2,7 +2,7 @@
 
 Benchmark tooling for the `npm` cli
 
-### Options
+### Options:
 
 ##### `manager` (alias `-m`)
 
@@ -12,7 +12,7 @@ Options: `all`, `npm`, `yarn`, `pnpm` ...
 
 List of package managers to benchmark (must be npm installable strings)
 
-#### `fixture` (alias `-f`) 
+##### `fixture` (alias `-f`) 
 
 Type: `Array`
 
@@ -20,7 +20,7 @@ Options: `angular-quickstart`, `app-large`, `app-medium`, `ember-quickstart`, `e
 
 List of fixtures to run the given benchmarks against
 
-#### `benchmark` (alias `-b`) 
+##### `benchmark` (alias `-b`) 
 
 Type: `Array`
 
@@ -28,19 +28,19 @@ Options: `clean`, `lock-only`, `cache-only`, `modules-only`, `no-lock`, `no-cach
 
 List of benchmarks to run
 
-#### `report` (alias `-r`) 
+##### `report` (alias `-r`) 
 
 Type: `Boolean`
 
 Generate a text report
 
-#### `graph` (alias `-g`) 
+##### `graph` (alias `-g`) 
 
 Type: `Boolean`
 
 Generate a svg graph
 
-#### Example usage
+### Example usage:
 
 ```bash
 ./benchmark.js -m all -b all -f app-large -g
@@ -48,4 +48,4 @@ Generate a svg graph
 
 <img src="https://user-images.githubusercontent.com/459713/105940574-a1d5c880-6029-11eb-8461-9b57bff84c08.png" alt="" width="100%">
 
-Note: Graph generation pulled from [pnpm/benchmarks-of-javascript-package-managers](https://github.com/pnpm/benchmarks-of-javascript-package-managers)
+**Note:** Graph generation pulled from [pnpm/benchmarks-of-javascript-package-managers](https://github.com/pnpm/benchmarks-of-javascript-package-managers)
