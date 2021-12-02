@@ -140,7 +140,7 @@ if (hyperfine.status !== 0) {
   process.exit(hyperfine.status)
 }
 
-const { PR_ID, REPO, OWNER, GITHUB_TOKEN } = process.env
+const { PR_ID, REPO, OWNER, GITHUB_TOKEN: NPM_DEPLOY_USER_PAT } = process.env
 const result = parseResult()
 
 if (argv.report) {
