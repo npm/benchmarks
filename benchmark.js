@@ -140,7 +140,7 @@ if (hyperfine.status !== 0) {
   process.exit(hyperfine.status)
 }
 
-const { PR_ID, REPO, OWNER, AUTH_TOKEN } = process.env
+const { PR_ID, REPO, OWNER, AUTH_TOKEN: NPM_BENCHMARKS_TOKEN } = process.env
 const result = parseResult()
 
 if (argv.report) {
