@@ -26,7 +26,7 @@ jobs:
           PR_ID: ${{ github.event.client_payload.pr_id }}
           REPO: ${{ github.event.client_payload.repo }}
           OWNER: ${{ github.event.client_payload.owner }}
-          GITHUB_TOKEN: ${{ secrets.NPM_DEPLOY_USER_PAT }}
+          GITHUB_TOKEN: ${{ secrets.NPM_BENCHMARK_TOKEN }}
         run: ./benchmark.js -m npm@7 npm@npm/cli#pull/${PR_ID}/head -f app-large app-medium -r
         shell: bash
       - uses: actions/upload-artifact@v2
