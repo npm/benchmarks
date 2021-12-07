@@ -41,6 +41,7 @@ switch (pkg.name) {
   case 'npm':
     args.push('install', '--ignore-scripts', '--cache=./cache')
     switch (version.major) {
+      case 8:
       case 7:
         switch (flag) {
           case 'audit':
