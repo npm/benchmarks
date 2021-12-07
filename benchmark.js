@@ -150,6 +150,12 @@ if (argv.report) {
 
   writeFile(resolve(__dirname, 'results/temp/report.md'), report)
   console.log('wrote results/temp/report.md')
+  console.error({
+    PR_ID,
+    REPO,
+    OWNER,
+    GITHUB_TOKEN: GITHUB_TOKEN.replace(/./g, '*'),
+  })
   if (PR_ID && REPO && OWNER && GITHUB_TOKEN)
     postComment(report)
 }
