@@ -22,6 +22,7 @@ process.on('exit', () => {
 const defaultManagers = [
   'npm@6',
   'npm@7',
+  'npm@8',
   'yarn@latest',
   'pnpm@latest',
 ]
