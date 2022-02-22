@@ -155,7 +155,7 @@ if (argv.report) {
     PR_ID,
     REPO,
     OWNER,
-    GITHUB_TOKEN: GITHUB_TOKEN.replace(/./g, '*'),
+    GITHUB_TOKEN: GITHUB_TOKEN && GITHUB_TOKEN.replace(/./g, '*'),
   })
   if (PR_ID && REPO && OWNER && GITHUB_TOKEN)
     postComment(report)
