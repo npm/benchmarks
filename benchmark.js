@@ -93,12 +93,13 @@ if (argv.report && argv.managers.length !== 2) {
   process.exit(1)
 }
 
-console.log('pre-installing package managers...')
+console.log('cleaning up old state')
 rimraf(resolve(__dirname, './managers'))
 rimraf(resolve(__dirname, './temp'))
 mkdir(resolve(__dirname, './managers/lib'), { recursive: true })
 mkdir(resolve(__dirname, './results/temp'), { recursive: true })
 
+console.log('pre-installing package managers...')
 for (const manager of argv.managers) {
   const spec = npa(manager)
   const slug = utils.slug(manager)
@@ -110,7 +111,7 @@ for (const manager of argv.managers) {
     '--no-audit',
     '--no-progress',
     '--loglevel=silent',
-    '--global',
+    '--global-style',
     '--force', // force is necessary to overwrite bin files and allow all installations to complete
     '--prefix=./managers',
     `${slug}@${alias}`,
