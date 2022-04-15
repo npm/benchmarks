@@ -7,11 +7,12 @@ jobs:
   benchmark:
     name: Benchmark CLI
     runs-on: ubuntu-latest
+    if: startsWith(github.event.action, 'pull_request') || startsWith(github.event.action, 'issue_comment')
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
-          node-version: 14.x
+          node-version: 16
       - name: update npm
         run: npm i -g --prefer-online npm
       - name: install dependencies
@@ -21,7 +22,6 @@ jobs:
           wget https://github.com/sharkdp/hyperfine/releases/download/v1.11.0/hyperfine_1.11.0_amd64.deb
           sudo dpkg -i hyperfine_1.11.0_amd64.deb
       - name: Run Benchmark (Pull-Request)
-        if: startsWith(github.event.action, 'pull_request')
         env:
           PR_ID: ${{ github.event.client_payload.pr_id }}
           REPO: ${{ github.event.client_payload.repo }}
