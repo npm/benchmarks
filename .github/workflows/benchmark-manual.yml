@@ -20,10 +20,10 @@ jobs:
     name: Benchmark
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
-          node-version: 14.x
+          node-version: 16
       - name: update npm
         run: npm i -g --prefer-online npm
       - name: install dependencies
@@ -35,7 +35,7 @@ jobs:
       - name: run benchmarks
         run: ./benchmark.js -m ${{ github.event.inputs.managers }} -b ${{ github.event.inputs.benchmarks }} -f ${{ github.event.inputs.fixtures }} -g
         shell: bash
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: results
           path: results/temp/
