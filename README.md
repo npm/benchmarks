@@ -43,7 +43,7 @@ Generate a svg graph
 ### Example usage:
 
 ```bash
-./benchmark.js -m all -b all -f app-large -g
+./bin/benchmark.js -m all -b all -f app-large -g
 ```
 
 <img src="https://user-images.githubusercontent.com/459713/105940574-a1d5c880-6029-11eb-8461-9b57bff84c08.png" alt="" width="100%">

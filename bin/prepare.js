@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
-const { copyFileSync: copyFile, mkdirSync: mkdir, existsSync: exists, renameSync: rename } = require('fs')
+const { copyFileSync: copyFile, mkdirSync: mkdir } = require('fs')
 const { resolve } = require('path')
-const utils = require('./lib/utils.js')
+const utils = require('../lib/utils.js')
 
 const { hideBin } = require('yargs/helpers')
 const yargs = require('yargs/yargs')
@@ -29,7 +29,7 @@ const { argv } = yargs(hideBin(process.argv))
   .help()
 
 const [benchmark, flag] = argv.benchmark.split(':')
-const dir = resolve(__dirname, 'temp', argv.manager, argv.fixture, flag || 'default')
+const dir = resolve(__dirname, '..', 'temp', argv.manager, argv.fixture, flag || 'default')
 mkdir(dir, { recursive: true })
 
 const fixturePath = resolve(__dirname, 'fixtures', `${argv.fixture}.json`)

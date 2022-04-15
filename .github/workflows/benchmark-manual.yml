@@ -1,5 +1,6 @@
 ---
 name: Benchmark (Manual)
+
 on:
   workflow_dispatch:
     inputs:
@@ -23,17 +24,18 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: 16
-      - name: update npm
-        run: npm i -g --prefer-online npm
-      - name: install dependencies
-        run: npm i
+          node-version: 16.x
+          cache: npm
+      - name: Update npm to latest
+        run: npm i --prefer-online --no-fund --no-audit -g npm@latest
+      - run: npm -v
+      - run: npm i --ignore-scripts --no-audit --no-fund
       - name: install hyperfine
         run: |
           wget https://github.com/sharkdp/hyperfine/releases/download/v1.11.0/hyperfine_1.11.0_amd64.deb
           sudo dpkg -i hyperfine_1.11.0_amd64.deb
       - name: run benchmarks
-        run: ./benchmark.js -m ${{ github.event.inputs.managers }} -b ${{ github.event.inputs.benchmarks }} -f ${{ github.event.inputs.fixtures }} -g
+        run: ./bin/benchmark.js -m ${{ github.event.inputs.managers }} -b ${{ github.event.inputs.benchmarks }} -f ${{ github.event.inputs.fixtures }} -g
         shell: bash
       - uses: actions/upload-artifact@v3
         with:
