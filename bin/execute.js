@@ -2,7 +2,7 @@
 
 const { spawnSync: spawn } = require('child_process')
 const { resolve } = require('path')
-const utils = require('./lib/utils.js')
+const utils = require('../lib/utils.js')
 const semver = require('semver')
 
 const { hideBin } = require('yargs/helpers')
@@ -29,8 +29,8 @@ const { argv } = yargs(hideBin(process.argv))
   })
   .help()
 
-const [benchmark, flag] = argv.benchmark.split(':')
-const dir = resolve(__dirname, 'temp', argv.manager, argv.fixture, flag || 'default')
+const [, flag] = argv.benchmark.split(':')
+const dir = resolve(__dirname, '..', 'temp', argv.manager, argv.fixture, flag || 'default')
 
 const pkg = utils.getPkg(argv.manager)
 const version = semver.parse(pkg.version)
@@ -59,7 +59,6 @@ switch (pkg.name) {
             break
           case 'peer-deps':
             throw new Error(`unsupported flag ${flag}`)
-            break
           default:
             args.push('--no-audit')
         }
@@ -76,7 +75,6 @@ switch (pkg.name) {
         break
       case 'peer-deps':
         throw new Error(`unsupported flag ${flag}`)
-        break
       default:
         break
     }
@@ -86,10 +84,8 @@ switch (pkg.name) {
     switch (flag) {
       case 'audit':
         throw new Error(`unsupported flag ${flag}`)
-        break
       case 'peer-deps':
         throw new Error(`unsupported flag ${flag}`)
-        break
       default:
         break
     }

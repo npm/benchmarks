@@ -5,11 +5,11 @@ const { readdirSync: readdir, mkdirSync: mkdir, writeFileSync: writeFile } = req
 const { basename, resolve } = require('path')
 const { sync: rimraf } = require('rimraf')
 const npa = require('npm-package-arg')
-const utils = require('./lib/utils.js')
-const parseResult = require('./lib/parse-result.js')
-const generateReport = require('./lib/report.js')
-const generateGraphs = require('./lib/graph.js')
-const { postComment } = require('./lib/github.js')
+const utils = require('../lib/utils.js')
+const parseResult = require('../lib/parse-result.js')
+const generateReport = require('../lib/report.js')
+const generateGraphs = require('../lib/graph.js')
+const { postComment } = require('../lib/github.js')
 
 const { hideBin } = require('yargs/helpers')
 const yargs = require('yargs/yargs')
@@ -40,8 +40,9 @@ const defaultBenchmarks = [
   'no-clean:audit',
 ]
 
-const defaultFixtures = readdir('./fixtures')
-  .filter((file) => file.endsWith('.json'))
+const root = resolve(__dirname, '..')
+const defaultFixtures = readdir(resolve(__dirname, 'fixtures'))
+  .filter((file) => file.endsWith('.json') && !file.startsWith('_'))
   .map((file) => basename(file, '.json'))
 
 const { argv } = yargs(hideBin(process.argv))
@@ -61,7 +62,7 @@ const { argv } = yargs(hideBin(process.argv))
   .option('f', {
     alias: 'fixtures',
     default: defaultFixtures,
-    choices: ['all', ...defaultFixtures],
+    choices: ['all', ...defaultFixtures, '_test'],
     describe: 'which fixtures to run the given benchmarks against',
     type: 'array',
   })
@@ -79,14 +80,17 @@ const { argv } = yargs(hideBin(process.argv))
   })
   .help()
 
-if (argv.managers.includes('all'))
+if (argv.managers.includes('all')) {
   argv.managers = defaultManagers
+}
 
-if (argv.benchmarks.includes('all'))
+if (argv.benchmarks.includes('all')) {
   argv.benchmarks = defaultBenchmarks
+}
 
-if (argv.fixtures.includes('all'))
+if (argv.fixtures.includes('all')) {
   argv.fixtures = defaultFixtures
+}
 
 if (argv.report && argv.managers.length !== 2) {
   console.error('report mode requires exactly 2 managers')
@@ -94,10 +98,10 @@ if (argv.report && argv.managers.length !== 2) {
 }
 
 console.log('cleaning up old state')
-rimraf(resolve(__dirname, './managers'))
-rimraf(resolve(__dirname, './temp'))
-mkdir(resolve(__dirname, './managers/lib'), { recursive: true })
-mkdir(resolve(__dirname, './results/temp'), { recursive: true })
+rimraf(resolve(root, 'managers'))
+rimraf(resolve(root, 'temp'))
+mkdir(resolve(root, 'managers/lib'), { recursive: true })
+mkdir(resolve(root, 'results/temp'), { recursive: true })
 
 console.log('pre-installing package managers...')
 for (const manager of argv.managers) {
@@ -126,8 +130,8 @@ for (const manager of argv.managers) {
 const slugs = argv.managers.map(utils.slug)
 
 const hyperfine = spawn('hyperfine', [
-  '--ignore-failure',
-  ...(argv.report || argv.graph ? ['--export-json', `${resolve(__dirname, 'results/temp/results.json')}`] : []),
+  ...(argv.report || argv.graph
+    ? ['--export-json', `${resolve(root, 'results/temp/results.json')}`] : []),
   '--warmup', '1',
   '--runs', '2',
   '--parameter-list', 'benchmark', argv.benchmarks.join(','),
@@ -150,7 +154,7 @@ if (argv.report) {
     { slug: slugs[0], name: argv.managers[0] },
     { slug: slugs[1], name: argv.managers[1] })
 
-  writeFile(resolve(__dirname, 'results/temp/report.md'), report)
+  writeFile(resolve(root, 'results/temp/report.md'), report)
   console.log('wrote results/temp/report.md')
   console.error({
     PR_ID,
@@ -158,14 +162,15 @@ if (argv.report) {
     OWNER,
     GITHUB_TOKEN: GITHUB_TOKEN && GITHUB_TOKEN.replace(/./g, '*'),
   })
-  if (PR_ID && REPO && OWNER && GITHUB_TOKEN)
+  if (PR_ID && REPO && OWNER && GITHUB_TOKEN) {
     postComment(report)
+  }
 }
 
 if (argv.graph) {
   const graphs = generateGraphs(result)
   for (const name in graphs) {
-    writeFile(resolve(__dirname, `results/temp/${name}.svg`), graphs[name])
+    writeFile(resolve(root, `results/temp/${name}.svg`), graphs[name])
     console.log(`wrote results/temp/${name}.svg`)
   }
 }

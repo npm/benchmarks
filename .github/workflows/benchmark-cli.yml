@@ -12,11 +12,12 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: 16
-      - name: update npm
-        run: npm i -g --prefer-online npm
-      - name: install dependencies
-        run: npm i
+          node-version: 16.x
+          cache: npm
+      - name: Update npm to latest
+        run: npm i --prefer-online --no-fund --no-audit -g npm@latest
+      - run: npm -v
+      - run: npm i --ignore-scripts --no-audit --no-fund
       - name: install hyperfine
         run: |
           wget https://github.com/sharkdp/hyperfine/releases/download/v1.11.0/hyperfine_1.11.0_amd64.deb
@@ -27,9 +28,9 @@ jobs:
           REPO: ${{ github.event.client_payload.repo }}
           OWNER: ${{ github.event.client_payload.owner }}
           GITHUB_TOKEN: ${{ secrets.NPM_BENCHMARKS_TOKEN }}
-        run: ./benchmark.js -m npm@8 npm@npm/cli#pull/${PR_ID}/head -f app-large app-medium -r
+        run: ./bin/benchmark.js -m npm@8 npm@npm/cli#pull/${PR_ID}/head -f app-large app-medium -r
         shell: bash
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: results
           path: results/temp/
