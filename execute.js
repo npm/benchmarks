@@ -38,6 +38,7 @@ const bin = utils.getBin(argv.manager)
 const args = []
 
 switch (pkg.name) {
+  case 'isolated_latest':
   case 'npm':
     args.push('install', '--ignore-scripts', '--cache=./cache')
     switch (version.major) {

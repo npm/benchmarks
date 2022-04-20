@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const { spawnSync: spawn } = require('child_process')
-const { readdirSync: readdir, mkdirSync: mkdir, writeFileSync: writeFile } = require('fs')
+const { readdirSync: readdir, mkdirSync: mkdir, writeFileSync: writeFile, symlinkSync } = require('fs')
 const { basename, resolve } = require('path')
 const { sync: rimraf } = require('rimraf')
 const npa = require('npm-package-arg')
@@ -23,6 +23,7 @@ const defaultManagers = [
   'npm@6',
   'npm@7',
   'npm@8',
+  'isolated',
   'yarn@latest',
   'pnpm@latest',
 ]
@@ -104,6 +105,10 @@ for (const manager of argv.managers) {
   const spec = npa(manager)
   const slug = utils.slug(manager)
   const alias = utils.alias(spec)
+  let pkg = `${slug}@${alias}`
+  if (manager === 'isolated') {
+    pkg = '/Users/fritzy/projects/npm/isolated'
+  }
   console.log(`installing ${spec} as ${slug}...`)
   const result = spawn('npm', [
     'install',
@@ -114,11 +119,11 @@ for (const manager of argv.managers) {
     '--global-style',
     '--force', // force is necessary to overwrite bin files and allow all installations to complete
     '--prefix=./managers',
-    `${slug}@${alias}`,
+    pkg,
   ], { stdio: 'inherit' })
 
   if (result.status !== 0) {
-    console.error(`failed to install ${slug}@${alias}`)
+    console.error(`failed to install ${pkg}`)
     process.exit(1)
   }
 }
@@ -127,6 +132,7 @@ const slugs = argv.managers.map(utils.slug)
 
 const hyperfine = spawn('hyperfine', [
   '--ignore-failure',
+  //'--show-output',
   ...(argv.report || argv.graph ? ['--export-json', `${resolve(__dirname, 'results/temp/results.json')}`] : []),
   '--warmup', '1',
   '--runs', '2',
