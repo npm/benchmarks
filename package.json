@@ -30,7 +30,8 @@
     "posttest": "npm run lint"
   },
   "tap": {
-    "no-coverage": true
+    "no-coverage": true,
+    "timeout": 300
   },
   "author": "GitHub Inc.",
   "files": [
@@ -47,6 +48,7 @@
   "devDependencies": {
     "@npmcli/eslint-config": "^3.0.1",
     "@npmcli/template-oss": "3.4.1",
-    "tap": "^16.0.1"
+    "tap": "^16.0.1",
+    "which": "^2.0.2"
   }
 }

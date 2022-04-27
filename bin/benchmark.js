@@ -130,6 +130,7 @@ for (const manager of argv.managers) {
 const slugs = argv.managers.map(utils.slug)
 
 const hyperfine = spawn('hyperfine', [
+  '--ignore-failure',
   ...(argv.report || argv.graph
     ? ['--export-json', `${resolve(root, 'results/temp/results.json')}`] : []),
   '--warmup', '1',
@@ -141,9 +142,10 @@ const hyperfine = spawn('hyperfine', [
   `${resolve(__dirname, 'execute.js')} -m {manager} -b {benchmark} -f {fixture}`,
 ], { stdio: 'inherit' })
 
-if (hyperfine.status !== 0) {
+if (hyperfine.status !== 0 || hyperfine.error) {
   console.error('benchmark failed!')
-  process.exit(hyperfine.status)
+  console.error('hyperfine error', hyperfine.error)
+  process.exit(hyperfine.status || 1)
 }
 
 const { PR_ID, REPO, OWNER, GITHUB_TOKEN } = process.env
