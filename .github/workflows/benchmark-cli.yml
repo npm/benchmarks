@@ -20,8 +20,8 @@ jobs:
       - run: npm i --ignore-scripts --no-audit --no-fund
       - name: install hyperfine
         run: |
-          wget https://github.com/sharkdp/hyperfine/releases/download/v1.11.0/hyperfine_1.11.0_amd64.deb
-          sudo dpkg -i hyperfine_1.11.0_amd64.deb
+          wget https://github.com/sharkdp/hyperfine/releases/download/v1.13.0/hyperfine_1.13.0_amd64.deb
+          sudo dpkg -i hyperfine_1.13.0_amd64.deb
       - name: Run Benchmark (Pull-Request)
         env:
           PR_ID: ${{ github.event.client_payload.pr_id }}
