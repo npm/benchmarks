@@ -3,7 +3,7 @@
   "description": "the npm cli benchmarking suite",
   "private": true,
   "dependencies": {
-    "@octokit/rest": "^18.12.0",
+    "@octokit/rest": "^19.0.3",
     "npm-package-arg": "^9.0.2",
     "rimraf": "^3.0.2",
     "semver": "^7.3.7",
