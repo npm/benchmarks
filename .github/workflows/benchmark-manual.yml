@@ -1,4 +1,5 @@
----
+# This file is automatically added by @npmcli/template-oss. Do not edit.
+
 name: Benchmark (Manual)
 
 on:
@@ -16,28 +17,41 @@ on:
         description: 'Space separated list of fixtures to benchmark against'
         required: true
         default: 'all'
+
 jobs:
   benchmark:
     name: Benchmark
+    if: github.repository_owner == 'npm'
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Git User
+        run: |
+          git config --global user.email "npm-cli+bot@github.com"
+          git config --global user.name "npm CLI robot"
+      - name: Setup Node
+        uses: actions/setup-node@v3
         with:
-          node-version: 16.x
+          node-version: 18.x
           cache: npm
-      - name: Update npm to latest
+      - name: Install npm@latest
         run: npm i --prefer-online --no-fund --no-audit -g npm@latest
-      - run: npm -v
-      - run: npm i --ignore-scripts --no-audit --no-fund
+      - name: npm Version
+        run: npm -v
+      - name: Install Dependencies
+        run: npm i --ignore-scripts --no-audit --no-fund
       - name: install hyperfine
         run: |
           wget https://github.com/sharkdp/hyperfine/releases/download/v1.13.0/hyperfine_1.13.0_amd64.deb
           sudo dpkg -i hyperfine_1.13.0_amd64.deb
-      - name: run benchmarks
+      - name: Run Benchmarks
         run: ./bin/benchmark.js -m ${{ github.event.inputs.managers }} -b ${{ github.event.inputs.benchmarks }} -f ${{ github.event.inputs.fixtures }} -g
-        shell: bash
-      - uses: actions/upload-artifact@v3
+      - name: Upload Results
+        uses: actions/upload-artifact@v3
         with:
           name: results
           path: results/temp/
