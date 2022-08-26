@@ -1,0 +1,26 @@
+name: Benchmark CLI
+
+on: repository_dispatch
+
+jobs:
+  benchmark:
+    {{> job
+      jobName="Benchmark CLI"
+      jobIf="startsWith(github.event.action, 'pull_request') || startsWith(github.event.action, 'issue_comment')"
+    }}
+      - name: install hyperfine
+        run: |
+          wget https://github.com/sharkdp/hyperfine/releases/download/v1.13.0/hyperfine_1.13.0_amd64.deb
+          sudo dpkg -i hyperfine_1.13.0_amd64.deb
+      - name: Run Benchmark (Pull-Request)
+        env:
+          PR_ID: $\{{ github.event.client_payload.pr_id }}
+          REPO: $\{{ github.event.client_payload.repo }}
+          OWNER: $\{{ github.event.client_payload.owner }}
+          GITHUB_TOKEN: $\{{ secrets.CLI_ISSUE_COMMENT_TOKEN }}
+        run: ./bin/benchmark.js -m npm@8 npm@npm/cli#pull/${PR_ID}/head -f app-large app-medium -r
+      - name: Upload Results
+        uses: actions/upload-artifact@v3
+        with:
+          name: results
+          path: results/temp/
