@@ -49,6 +49,9 @@ switch (pkg.name) {
             break
           case 'peer-deps':
             break
+          case 'linked':
+            args.push('--no-audit', '--install-strategy=linked')
+            break
           default:
             args.push('--no-audit', '--legacy-peer-deps')
         }

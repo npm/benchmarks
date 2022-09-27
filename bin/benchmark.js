@@ -29,8 +29,11 @@ const defaultManagers = [
 
 const defaultBenchmarks = [
   'clean',
+  'clean:linked',
   'lock-only',
+  'lock-only:linked',
   'cache-only',
+  'cache-only:linked',
   'cache-only:peer-deps',
   'modules-only',
   'no-lock',
@@ -41,9 +44,10 @@ const defaultBenchmarks = [
 ]
 
 const root = resolve(__dirname, '..')
-const defaultFixtures = readdir(resolve(__dirname, 'fixtures'))
-  .filter((file) => file.endsWith('.json') && !file.startsWith('_'))
-  .map((file) => basename(file, '.json'))
+const defaultFixtures = readdir(resolve(__dirname, 'fixtures'), { withFileTypes: true })
+  .filter((file) =>
+    (!file.name.startsWith('_') && (file.name.endsWith('.json') || file.isDirectory())))
+  .map((fixture) => basename(fixture.name, '.json'))
 
 const { argv } = yargs(hideBin(process.argv))
   .option('m', {

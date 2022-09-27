@@ -1,6 +1,11 @@
 #!/usr/bin/env node
 
-const { copyFileSync: copyFile, mkdirSync: mkdir } = require('fs')
+const {
+  copyFileSync: copyFile,
+  mkdirSync: mkdir,
+  existsSync: exists,
+  readdirSync: readdir,
+} = require('fs')
 const { resolve } = require('path')
 const utils = require('../lib/utils.js')
 
@@ -30,10 +35,26 @@ const { argv } = yargs(hideBin(process.argv))
 
 const [benchmark, flag] = argv.benchmark.split(':')
 const dir = resolve(__dirname, '..', 'temp', argv.manager, argv.fixture, flag || 'default')
-mkdir(dir, { recursive: true })
 
-const fixturePath = resolve(__dirname, 'fixtures', `${argv.fixture}.json`)
-copyFile(fixturePath, resolve(dir, 'package.json'))
+const fixtureDirPath = resolve(__dirname, 'fixtures', argv.fixture)
+if (exists(fixtureDirPath)) {
+  // fixture is a directory
+  const copyDir = (sourceDir, destDir) => {
+    mkdir(destDir, { recursive: true })
+    for (const file of readdir(sourceDir, { withFileTypes: true })) {
+      if (file.isDirectory()) {
+        copyDir(resolve(sourceDir, file.name), resolve(destDir, file.name))
+      } else {
+        copyFile(resolve(sourceDir, file.name), resolve(destDir, file.name))
+      }
+    }
+  }
+  copyDir(fixtureDirPath, dir)
+} else {
+  mkdir(dir, { recursive: true })
+  const fixturePath = resolve(__dirname, 'fixtures', `${argv.fixture}.json`)
+  copyFile(fixturePath, resolve(dir, 'package.json'))
+}
 
 switch (benchmark) {
   case 'clean':
