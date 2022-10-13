@@ -8,12 +8,7 @@ const { sync: which } = require('which')
 const root = resolve(__dirname, '..')
 const resultsDir = resolve(root, 'results')
 
-t.before(() => {
-  if (!which('hyperfine', { nothrow: true })) {
-    spawn('brew', ['install', 'hyperfine'])
-  }
-})
-
+t.before(() => which('hyperfine'))
 t.beforeEach(() => rimraf(resultsDir))
 
 t.test('basic', async t => {
@@ -29,7 +24,8 @@ t.test('basic', async t => {
     'clean',
     '-r',
     '-g',
-  ], { encoding: 'utf-8', cwd: root })
+    '--loglevel=silly',
+  ], { encoding: 'utf-8', cwd: root, stdio: 'inherit' })
 
   const { results } = require(join(resultsDir, 'temp', 'results.json'))
   t.ok(results.every((run) => run.exit_codes.every((code) => code === 0)))

@@ -78,6 +78,10 @@ const { argv } = yargs(hideBin(process.argv))
     describe: 'generate an svg graph',
     type: 'boolean',
   })
+  .option('loglevel', {
+    default: 'silent',
+    type: 'string',
+  })
   .help()
 
 if (argv.managers.includes('all')) {
@@ -97,9 +101,11 @@ if (argv.report && argv.managers.length !== 2) {
   process.exit(1)
 }
 
-console.log('cleaning up old state')
+console.log('cleaning up old state', root)
 rimraf(resolve(root, 'managers'))
 rimraf(resolve(root, 'temp'))
+rimraf(resolve(root, 'cache'))
+rimraf(resolve(root, 'logs'))
 mkdir(resolve(root, 'managers/lib'), { recursive: true })
 mkdir(resolve(root, 'results/temp'), { recursive: true })
 
@@ -108,15 +114,17 @@ for (const manager of argv.managers) {
   const spec = npa(manager)
   const slug = utils.slug(manager)
   const alias = utils.alias(spec)
-  console.log(`installing ${spec} as ${slug}...`)
+  console.log(`installing ${spec} as ${slug} using ${alias}`)
   const result = spawn('npm', [
     'install',
     '--no-fund',
     '--no-audit',
     '--no-progress',
-    '--loglevel=silent',
+    `--loglevel=${argv.loglevel}`,
     '--global-style',
     '--force', // force is necessary to overwrite bin files and allow all installations to complete
+    '--logs-dir=./logs',
+    '--cache=./cache',
     '--prefix=./managers',
     `${slug}@${alias}`,
   ], { stdio: 'inherit' })
@@ -131,6 +139,7 @@ const slugs = argv.managers.map(utils.slug)
 
 const hyperfine = spawn('hyperfine', [
   '--ignore-failure',
+  ...(argv.loglevel !== 'silent' ? ['--show-output'] : []),
   ...(argv.report || argv.graph
     ? ['--export-json', `${resolve(root, 'results/temp/results.json')}`] : []),
   '--warmup', '1',
