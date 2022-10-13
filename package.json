@@ -3,11 +3,11 @@
   "description": "the npm cli benchmarking suite",
   "private": true,
   "dependencies": {
-    "@octokit/rest": "^19.0.3",
-    "npm-package-arg": "^9.0.2",
+    "@octokit/rest": "^19.0.4",
+    "npm-package-arg": "^9.1.2",
     "rimraf": "^3.0.2",
-    "semver": "^7.3.7",
-    "yargs": "^17.4.1"
+    "semver": "^7.3.8",
+    "yargs": "^17.6.0"
   },
   "templateOSS": {
     "//@npmcli/template-oss": "This file is partially managed by @npmcli/template-oss. Edits may be overwritten.",
@@ -44,9 +44,9 @@
     "node": ">=18.0.0"
   },
   "devDependencies": {
-    "@npmcli/eslint-config": "^3.0.1",
+    "@npmcli/eslint-config": "^3.1.0",
     "@npmcli/template-oss": "4.5.1",
-    "tap": "^16.0.1",
+    "tap": "^16.3.0",
     "which": "^2.0.2"
   }
 }
