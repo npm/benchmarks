@@ -30,7 +30,7 @@ jobs:
         run: npm -v
       - name: Install Dependencies
         run: npm i --ignore-scripts --no-audit --no-fund
-      - name: install hyperfine
+      - name: Install Hyperfine
         run: |
           wget https://github.com/sharkdp/hyperfine/releases/download/v1.13.0/hyperfine_1.13.0_amd64.deb
           sudo dpkg -i hyperfine_1.13.0_amd64.deb

@@ -8,10 +8,7 @@ jobs:
       jobName="Benchmark CLI"
       jobIf="startsWith(github.event.action, 'pull_request') || startsWith(github.event.action, 'issue_comment')"
     }}
-      - name: install hyperfine
-        run: |
-          wget https://github.com/sharkdp/hyperfine/releases/download/v1.13.0/hyperfine_1.13.0_amd64.deb
-          sudo dpkg -i hyperfine_1.13.0_amd64.deb
+      {{> stepHyperfine }}
       - name: Run Benchmark (Pull-Request)
         env:
           PR_ID: $\{{ github.event.client_payload.pr_id }}
