@@ -44,7 +44,7 @@ jobs:
           ./bin/benchmark.js \
             -m npm@8 npm@npm/cli#pull/${PR_ID}/head \
             -f app-large app-medium \
-            -r --loglevel=silly
+            -r
       - name: Upload Results
         uses: actions/upload-artifact@v3
         with:

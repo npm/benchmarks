@@ -25,5 +25,5 @@ jobs:
           ./bin/benchmark.js -m $\{{ github.event.inputs.managers }} \
             -b $\{{ github.event.inputs.benchmarks }} \
             -f $\{{ github.event.inputs.fixtures }} \
-            -g --loglevel=silly
+            -g
       {{> stepUpload }}

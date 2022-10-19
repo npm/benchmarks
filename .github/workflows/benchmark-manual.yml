@@ -53,7 +53,7 @@ jobs:
           ./bin/benchmark.js -m ${{ github.event.inputs.managers }} \
             -b ${{ github.event.inputs.benchmarks }} \
             -f ${{ github.event.inputs.fixtures }} \
-            -g --loglevel=silly
+            -g
       - name: Upload Results
         uses: actions/upload-artifact@v3
         with:
