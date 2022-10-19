@@ -21,9 +21,9 @@ jobs:
     {{> job jobName="Benchmark" }}
       {{> stepHyperfine }}
       - name: Run Benchmarks
-        run: ./bin/benchmark.js -m $\{{ github.event.inputs.managers }} -b $\{{ github.event.inputs.benchmarks }} -f $\{{ github.event.inputs.fixtures }} -g
-      - name: Upload Results
-        uses: actions/upload-artifact@v3
-        with:
-          name: results
-          path: results/temp/
+        run: |
+          ./bin/benchmark.js -m $\{{ github.event.inputs.managers }} \
+            -b $\{{ github.event.inputs.benchmarks }} \
+            -f $\{{ github.event.inputs.fixtures }} \
+            -g --loglevel=silly
+      {{> stepUpload }}

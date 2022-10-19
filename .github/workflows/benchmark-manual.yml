@@ -49,7 +49,11 @@ jobs:
           wget https://github.com/sharkdp/hyperfine/releases/download/v1.13.0/hyperfine_1.13.0_amd64.deb
           sudo dpkg -i hyperfine_1.13.0_amd64.deb
       - name: Run Benchmarks
-        run: ./bin/benchmark.js -m ${{ github.event.inputs.managers }} -b ${{ github.event.inputs.benchmarks }} -f ${{ github.event.inputs.fixtures }} -g
+        run: |
+          ./bin/benchmark.js -m ${{ github.event.inputs.managers }} \
+            -b ${{ github.event.inputs.benchmarks }} \
+            -f ${{ github.event.inputs.fixtures }} \
+            -g --loglevel=silly
       - name: Upload Results
         uses: actions/upload-artifact@v3
         with:
