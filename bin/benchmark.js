@@ -1,9 +1,8 @@
 #!/usr/bin/env node
 
 const { spawnSync: spawn } = require('child_process')
-const { readdirSync: readdir, mkdirSync: mkdir, writeFileSync: writeFile } = require('fs')
+const { readdirSync: readdir, mkdirSync: mkdir, writeFileSync: writeFile, rmSync } = require('fs')
 const { basename, resolve } = require('path')
-const { sync: rimraf } = require('rimraf')
 const npa = require('npm-package-arg')
 const utils = require('../lib/utils.js')
 const parseResult = require('../lib/parse-result.js')
@@ -13,6 +12,8 @@ const { postComment } = require('../lib/github.js')
 
 const { hideBin } = require('yargs/helpers')
 const yargs = require('yargs/yargs')
+
+const rimraf = (p) => rmSync(p, { recursive: true, force: true })
 
 const startTime = Date.now()
 process.on('exit', () => {

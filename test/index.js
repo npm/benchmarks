@@ -1,9 +1,10 @@
 const t = require('tap')
 const { resolve, join } = require('path')
 const { spawnSync: spawn } = require('child_process')
-const { sync: rimraf } = require('rimraf')
-const { existsSync } = require('fs')
+const { existsSync, rmSync } = require('fs')
 const { sync: which } = require('which')
+
+const rimraf = (p) => rmSync(p, { recursive: true, force: true })
 
 const root = resolve(__dirname, '..')
 const resultsDir = resolve(root, 'results')
