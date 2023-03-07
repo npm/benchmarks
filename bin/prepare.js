@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 
+const { spawnSync: spawn } = require('child_process')
 const { copyFileSync: copyFile, mkdirSync: mkdir } = require('fs')
 const { resolve } = require('path')
 const utils = require('../lib/utils.js')
 
 const { hideBin } = require('yargs/helpers')
 const yargs = require('yargs/yargs')
-
 const { argv } = yargs(hideBin(process.argv))
   .option('m', {
     alias: 'manager',
@@ -125,5 +125,10 @@ switch (benchmark) {
       'yarn.lock',
       'pnpm-lock.yaml',
     ])
+    break
+  case 'run-script':
+    spawn('npm', ['pkg', 'set', 'scripts.echo=echo 1'], { cwd: dir })
+    break
+  case 'show-version':
     break
 }

@@ -39,6 +39,8 @@ const defaultBenchmarks = [
   'no-modules',
   'no-clean',
   'no-clean:audit',
+  'show-version',
+  'run-script',
 ]
 
 const root = resolve(__dirname, '..')
@@ -159,9 +161,9 @@ if (hyperfine.status !== 0 || hyperfine.error) {
 }
 
 const { PR_ID, REPO, OWNER, GITHUB_TOKEN } = process.env
-const result = parseResult()
 
 if (argv.report) {
+  const result = parseResult()
   const report = generateReport(result,
     { slug: slugs[0], name: argv.managers[0] },
     { slug: slugs[1], name: argv.managers[1] })
@@ -180,6 +182,7 @@ if (argv.report) {
 }
 
 if (argv.graph) {
+  const result = parseResult()
   const graphs = generateGraphs(result)
   for (const name in graphs) {
     writeFile(resolve(root, `results/temp/${name}.svg`), graphs[name])
