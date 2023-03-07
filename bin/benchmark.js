@@ -23,6 +23,7 @@ const defaultManagers = [
   'npm@6',
   'npm@7',
   'npm@8',
+  'npm@9',
   'yarn@latest',
   'pnpm@latest',
 ]
