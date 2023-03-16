@@ -37,6 +37,22 @@ const version = semver.parse(pkg.version)
 const bin = utils.getBin(argv.manager)
 const args = []
 
+if (argv.benchmark === 'show-version') {
+  args.push('--version')
+
+  const result = spawn(bin, args, { stdio: 'inherit', cwd: dir })
+  process.exitCode = result.status
+  return
+}
+
+if (argv.benchmark === 'run-script') {
+  args.push('run', 'echo')
+
+  const result = spawn(bin, args, { stdio: 'inherit', cwd: dir })
+  process.exitCode = result.status
+  return
+}
+
 switch (pkg.name) {
   case 'npm':
     args.push('install', '--ignore-scripts', '--cache=./cache')
