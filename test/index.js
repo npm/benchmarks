@@ -1,34 +1,72 @@
 const t = require('tap')
+const fs = require('fs')
 const { resolve, join } = require('path')
 const { spawnSync: spawn } = require('child_process')
-const { existsSync, rmSync } = require('fs')
 const { sync: which } = require('which')
 
-const rimraf = (p) => rmSync(p, { recursive: true, force: true })
+const DIR = require('../lib/dirs.js')
+const parseResults = require('../lib/parse-result.js')
 
 const root = resolve(__dirname, '..')
-const resultsDir = resolve(root, 'results')
 
-t.before(() => which('hyperfine'))
-t.beforeEach(() => rimraf(resultsDir))
-
-t.test('basic', async t => {
-  t.notOk(existsSync(resultsDir))
-
+const benchmark = (t, {
+  before = false,
+  managers = ['npm@8', 'npm@9', 'npm@10', 'npm@latest', 'yarn@latest', 'pnpm@latest'],
+  fixtures = ['empty'],
+  benchmarks = ['clean'],
+  args = [],
+} = {}) => {
   const res = spawn('./bin/benchmark.js', [
-    '-m',
-    'npm@8.6.0',
-    'npm@8.7.0',
-    '-f',
-    '_test',
-    '-b',
-    'clean',
-    '-r',
-    '-g',
-    '--loglevel=silly',
-  ], { encoding: 'utf-8', cwd: root, stdio: 'inherit' })
+    '--show-output',
+    '--clean-managers=false',
+    ...before ? ['--download-only'] : [],
+    ...managers.flatMap((m) => ['-m', m]),
+    ...fixtures.flatMap((f) => ['-f', f]),
+    ...benchmarks.flatMap((b) => ['-b', b]),
+    ...args,
+  ], { encoding: 'utf-8', cwd: root })
 
-  const { results } = require(join(resultsDir, 'temp', 'results.json'))
-  t.ok(results.every((run) => run.exit_codes.every((code) => code === 0)))
-  t.equal(res.status, 0)
+  if (res.status !== 0) {
+    const msg = `Failed with status:${res.status}\n${res.output.filter(Boolean).join('\n')}`
+    if (t) {
+      t.fail(msg)
+      return t.end()
+    } else {
+      throw new Error(msg)
+    }
+  }
+
+  return {
+    results: before ? null : parseResults(),
+    files: fs.readdirSync(DIR.results).reduce((acc, p) => {
+      if (p === 'results.json') {
+        return acc
+      }
+      acc[p] = fs.readFileSync(join(DIR.results, p), { encoding: 'utf-8' })
+      return acc
+    }, {}),
+  }
+}
+
+t.before(() => {
+  which('hyperfine')
+  benchmark(t, { before: true })
+})
+
+t.test('npm 9->latest with report', t => {
+  const res = benchmark(t, {
+    managers: ['npm@9', 'npm@latest'],
+    args: ['-r', '-g'],
+  })
+  t.ok(res)
+  t.end()
+})
+
+t.test('all', t => {
+  const res = benchmark(t, {
+    benchmarks: ['all'],
+    args: ['-g'],
+  })
+  t.ok(res)
+  t.end()
 })

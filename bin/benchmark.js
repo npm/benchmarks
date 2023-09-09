@@ -1,197 +1,207 @@
 #!/usr/bin/env node
 
-const { spawnSync: spawn } = require('child_process')
-const { readdirSync: readdir, mkdirSync: mkdir, writeFileSync: writeFile, rmSync } = require('fs')
-const { basename, resolve } = require('path')
+const fs = require('fs')
+const { spawnSync } = require('child_process')
+const { join, basename } = require('path')
 const npa = require('npm-package-arg')
-const utils = require('../lib/utils.js')
+const { hideBin } = require('yargs/helpers')
+const yargs = require('yargs/yargs')
+const { hasPkg } = require('../lib/manager.js')
+const DIR = require('../lib/dirs.js')
 const parseResult = require('../lib/parse-result.js')
 const generateReport = require('../lib/report.js')
 const generateGraphs = require('../lib/graph.js')
 const { postComment } = require('../lib/github.js')
+const options = require('../lib/options.js')
 
-const { hideBin } = require('yargs/helpers')
-const yargs = require('yargs/yargs')
+const rimraf = (dir) => fs.rmSync(dir, { recursive: true, force: true })
 
-const rimraf = (p) => rmSync(p, { recursive: true, force: true })
+const mkdirp = (dir) => fs.mkdirSync(dir, { recursive: true })
 
-const startTime = Date.now()
-process.on('exit', () => console.log(`finished in %dms`, Date.now() - startTime))
+const spawn = (bin, args, opts) => spawnSync(bin, args, { stdio: 'inherit', ...opts })
 
-const root = resolve(__dirname, '..')
+const main = () => {
+  const defaultManagers = options.managers.map(m => `${m}@latest`)
 
-// managers that can be run on request but will not be run when using the
-// default 'all' option
-const availableManagers = [
-  'npm@7',
-  'npm@8',
-  'npm@9',
-]
+  const { argv } = yargs(hideBin(process.argv))
+    .option('m', {
+      alias: 'managers',
+      describe: 'the package managers to benchmark (must be npm installable strings)',
+      default: ['all'],
+      type: 'array',
+      coerce: (v) => v.includes('all') ? defaultManagers : v,
+    })
+    .option('b', {
+      alias: 'benchmarks',
+      describe: 'the benchmarks to run',
+      default: ['all'],
+      choices: options.benchmarks,
+      type: 'array',
+      coerce: (v) => v.includes('all') ? options.benchmarks : v,
+    })
+    .option('f', {
+      alias: 'fixtures',
+      describe: 'which fixtures to run the given benchmarks against',
+      default: ['all'],
+      choices: options.fixtures,
+      type: 'array',
+      coerce: (v) => v.includes('all') ? options.fixtures : v,
+    })
+    .option('r', {
+      alias: 'report',
+      default: false,
+      describe: 'generate a text report',
+      type: 'boolean',
+    })
+    .option('g', {
+      alias: 'graph',
+      default: false,
+      describe: 'generate an svg graph',
+      type: 'boolean',
+    })
+    .option('show-output', {
+      default: false,
+      type: 'boolean',
+    })
+    .option('clean-managers', {
+      default: true,
+      type: 'boolean',
+    })
+    .option('download-only', {
+      default: false,
+      type: 'boolean',
+    })
+    .option('warmup', {
+      default: 1,
+      type: 'number',
+    })
+    .option('runs', {
+      default: 2,
+      type: 'number',
+    })
+    .check((a) => {
+      if (a.report && a.managers.length !== 2) {
+        throw new Error('report mode requires exactly 2 managers')
+      }
+      return true
+    })
+    .help()
 
-const defaultManagers = [
-  'npm@6',
-  'npm@latest',
-  'yarn@latest',
-  'pnpm@latest',
-]
+  console.log('cleaning up old state')
+  rimraf(DIR.temp)
+  rimraf(DIR.cache)
+  rimraf(DIR.logs)
+  rimraf(DIR.results)
+  if (argv.cleanManagers) {
+    rimraf(DIR.managers)
+  }
 
-const defaultBenchmarks = [
-  'clean',
-  'lock-only',
-  'cache-only',
-  'cache-only:peer-deps',
-  'modules-only',
-  'no-lock',
-  'no-cache',
-  'no-modules',
-  'no-clean',
-  'no-clean:audit',
-  'show-version',
-  'run-script',
-]
+  mkdirp(DIR.results)
+  mkdirp(DIR.managers)
 
-const defaultFixtures = readdir(resolve(__dirname, 'fixtures'))
-  .filter((file) => file.endsWith('.json') && !file.startsWith('_'))
-  .map((file) => basename(file, '.json'))
+  const managers = argv.managers.map((name) => {
+    const spec = npa(name)
 
-const { argv } = yargs(hideBin(process.argv))
-  .option('m', {
-    alias: 'managers',
-    default: 'all',
-    choices: ['all', ...defaultManagers, ...availableManagers],
-    describe: 'the package managers to benchmark (must be npm installable strings)',
-    type: 'array',
+    let alias
+    let version
+    if (spec.registry) {
+      alias = `npm:${spec.name}@${spec.fetchSpec}`
+      version = spec.fetchSpec
+    } else if (spec.type === 'git') {
+      alias = spec.saveSpec
+      version = spec.gitCommittish
+    } else if (spec.type === 'file') {
+      alias = basename(spec.fetchSpec)
+      version = basename(spec.fetchSpec)
+    }
+
+    return {
+      name,
+      spec,
+      alias,
+      slug: `${spec.name}__${version.replace(/\.+/g, '-').replace(/\/+/g, '_')}`,
+    }
   })
-  .option('b', {
-    alias: 'benchmarks',
-    default: defaultBenchmarks,
-    choices: ['all', ...defaultBenchmarks],
-    describe: 'the benchmarks to run',
-    type: 'array',
-  })
-  .option('f', {
-    alias: 'fixtures',
-    default: defaultFixtures,
-    choices: ['all', ...defaultFixtures, '_test'],
-    describe: 'which fixtures to run the given benchmarks against',
-    type: 'array',
-  })
-  .option('r', {
-    alias: 'report',
-    default: false,
-    describe: 'generate a text report',
-    type: 'boolean',
-  })
-  .option('g', {
-    alias: 'graph',
-    default: false,
-    describe: 'generate an svg graph',
-    type: 'boolean',
-  })
-  .option('loglevel', {
-    default: 'silent',
-    type: 'string',
-  })
-  .help()
 
-if (argv.managers.includes('all')) {
-  argv.managers = defaultManagers
-}
+  console.log('pre-installing package managers...')
+  for (const { spec, slug, alias } of managers) {
+    if (hasPkg(slug)) {
+      console.log(`skipping ${spec}, already installed as ${slug} / ${alias}`)
+      continue
+    }
 
-if (argv.benchmarks.includes('all')) {
-  argv.benchmarks = defaultBenchmarks
-}
+    console.log(`installing ${spec} as ${slug} using ${alias}`)
+    const result = spawn('npm', [
+      'install',
+      '--no-fund',
+      '--no-audit',
+      '--no-progress',
+      '--silent',
+      '--no-progress',
+      '--global-style',
+      // force is necessary to overwrite bin files and allow all installations to complete
+      '--force',
+      '--logs-dir=./logs',
+      '--cache=./cache',
+      '--prefix=./managers',
+      `${slug}@${alias}`,
+    ])
 
-if (argv.fixtures.includes('all')) {
-  argv.fixtures = defaultFixtures
-}
+    if (result.status !== 0) {
+      throw new Error(`failed to install ${slug}@${alias}`)
+    }
+  }
 
-if (argv.report && argv.managers.length !== 2) {
-  console.error('report mode requires exactly 2 managers')
-  process.exit(1)
-}
+  if (argv.downloadOnly) {
+    console.log('Download only, exiting after downloading managers')
+    return
+  }
 
-console.log('cleaning up old state', root)
-rimraf(resolve(root, 'managers'))
-rimraf(resolve(root, 'temp'))
-rimraf(resolve(root, 'cache'))
-rimraf(resolve(root, 'logs'))
-mkdir(resolve(root, 'managers/lib'), { recursive: true })
-mkdir(resolve(root, 'results/temp'), { recursive: true })
+  const generate = argv.report || argv.graph
 
-console.log('pre-installing package managers...')
-for (const manager of argv.managers) {
-  const spec = npa(manager)
-  const slug = utils.slug(manager)
-  const alias = utils.alias(spec)
-  console.log(`installing ${spec} as ${slug} using ${alias}`)
-  const result = spawn('npm', [
-    'install',
-    '--no-fund',
-    '--no-audit',
-    '--no-progress',
-    `--loglevel=${argv.loglevel}`,
-    '--global-style',
-    '--force', // force is necessary to overwrite bin files and allow all installations to complete
-    '--logs-dir=./logs',
-    '--cache=./cache',
-    '--prefix=./managers',
-    `${slug}@${alias}`,
-  ], { stdio: 'inherit' })
+  const hyperfine = spawn('hyperfine', [
+    ...(argv.showOutput ? ['--show-output'] : []),
+    '--ignore-failure',
+    '--export-json', join(DIR.results, 'results.json'),
+    '--warmup', argv.warmup,
+    '--runs', argv.runs,
+    '--parameter-list', 'benchmark', argv.benchmarks.join(','),
+    '--parameter-list', 'fixture', argv.fixtures.join(','),
+    '--parameter-list', 'manager', managers.map(m => m.slug).join(','),
+    '--prepare', `${join(DIR.bin, 'prepare.js')} {manager} {benchmark} {fixture}`,
+    `${join(DIR.bin, 'execute.js')} {manager} {benchmark} {fixture}`,
+  ])
 
-  if (result.status !== 0) {
-    console.error(`failed to install ${slug}@${alias}`)
-    process.exit(1)
+  if (hyperfine.status !== 0 || hyperfine.error) {
+    const err = hyperfine.error ?? new Error(`hyperfine error: ${hyperfine.output.join('\n')}`)
+    throw Object.assign(err, { code: hyperfine.status || 1 })
+  }
+
+  if (generate) {
+    const result = parseResult()
+
+    if (argv.report) {
+      const report = generateReport(result, managers[0], managers[1])
+      fs.writeFileSync(join(DIR.results, 'report.md'), report)
+      postComment(report)
+    }
+
+    if (argv.graph) {
+      const graphs = generateGraphs(result)
+      for (const name in graphs) {
+        fs.writeFileSync(join(DIR.results, `${name}.svg`), graphs[name])
+      }
+    }
+
+    console.log('Generated files:', fs.readdirSync(DIR.results))
   }
 }
 
-const slugs = argv.managers.map(utils.slug)
-
-const hyperfine = spawn('hyperfine', [
-  ...(argv.loglevel !== 'silent' ? ['--show-output'] : []),
-  ...(argv.report || argv.graph
-    ? ['--export-json', `${resolve(root, 'results/temp/results.json')}`] : []),
-  '--warmup', '1',
-  '--runs', '2',
-  '--parameter-list', 'benchmark', argv.benchmarks.join(','),
-  '--parameter-list', 'fixture', argv.fixtures.join(','),
-  '--parameter-list', 'manager', slugs.join(','),
-  '--prepare', `${resolve(__dirname, 'prepare.js')} -m {manager} -b {benchmark} -f {fixture}`,
-  `${resolve(__dirname, 'execute.js')} -m {manager} -b {benchmark} -f {fixture}`,
-], { stdio: 'inherit' })
-
-if (hyperfine.status !== 0 || hyperfine.error) {
-  console.error('benchmark failed!')
-  console.error('hyperfine error', hyperfine.error)
-  process.exit(hyperfine.status || 1)
-}
-
-const { PR_ID, REPO, OWNER, GITHUB_TOKEN } = process.env
-
-if (argv.report) {
-  const result = parseResult()
-  const report = generateReport(result,
-    { slug: slugs[0], name: argv.managers[0] },
-    { slug: slugs[1], name: argv.managers[1] })
-
-  writeFile(resolve(root, 'results/temp/report.md'), report)
-  console.log('wrote results/temp/report.md')
-  console.error({
-    PR_ID,
-    REPO,
-    OWNER,
-    GITHUB_TOKEN: GITHUB_TOKEN && GITHUB_TOKEN.replace(/./g, '*'),
-  })
-  if (PR_ID && REPO && OWNER && GITHUB_TOKEN) {
-    postComment(report)
-  }
-}
-
-if (argv.graph) {
-  const result = parseResult()
-  const graphs = generateGraphs(result)
-  for (const name in graphs) {
-    writeFile(resolve(root, `results/temp/${name}.svg`), graphs[name])
-    console.log(`wrote results/temp/${name}.svg`)
-  }
+try {
+  const START_TIME = Date.now()
+  main()
+  console.log(`finished in %dms`, Date.now() - START_TIME)
+} catch (err) {
+  console.error(err)
+  process.exitCode = err.code || 1
 }

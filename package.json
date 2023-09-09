@@ -3,14 +3,15 @@
   "description": "the npm cli benchmarking suite",
   "private": true,
   "dependencies": {
-    "@octokit/rest": "^19.0.5",
-    "npm-package-arg": "^10.0.0",
-    "semver": "^7.3.8",
-    "yargs": "^17.6.0"
+    "@octokit/rest": "^20.0.1",
+    "npm-package-arg": "^11.0.1",
+    "pacote": "^17.0.4",
+    "semver": "^7.5.4",
+    "yargs": "^17.7.2"
   },
   "templateOSS": {
     "//@npmcli/template-oss": "This file is partially managed by @npmcli/template-oss. Edits may be overwritten.",
-    "version": "4.15.1",
+    "version": "4.18.0",
     "content": "scripts/template-oss"
   },
   "scripts": {
@@ -23,7 +24,6 @@
     "posttest": "npm run lint"
   },
   "tap": {
-    "no-coverage": true,
     "timeout": 300,
     "nyc-arg": [
       "--exclude",
@@ -43,9 +43,9 @@
     "node": ">=18.0.0"
   },
   "devDependencies": {
-    "@npmcli/eslint-config": "^4.0.0",
-    "@npmcli/template-oss": "4.15.1",
-    "tap": "^16.3.0",
+    "@npmcli/eslint-config": "^4.0.2",
+    "@npmcli/template-oss": "4.18.0",
+    "tap": "^16.3.8",
     "which": "^4.0.0"
   }
 }

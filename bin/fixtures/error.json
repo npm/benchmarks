@@ -1,0 +1,7 @@
+{
+  "name": "missing-dep",
+  "version": "1.0.0",
+  "dependencies": {
+    "@npmcli/please-dont-publish-a-package-with-this-name": "1.0.0"
+  }
+}
