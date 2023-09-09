@@ -16,16 +16,21 @@ const yargs = require('yargs/yargs')
 const rimraf = (p) => rmSync(p, { recursive: true, force: true })
 
 const startTime = Date.now()
-process.on('exit', () => {
-  console.log(`finished in %dms`, Date.now() - startTime)
-})
+process.on('exit', () => console.log(`finished in %dms`, Date.now() - startTime))
 
-const defaultManagers = [
-  'npm@6',
+const root = resolve(__dirname, '..')
+
+// managers that can be run on request but will not be run when using the
+// default 'all' option
+const availableManagers = [
   'npm@7',
   'npm@8',
   'npm@9',
-  'npm@10',
+]
+
+const defaultManagers = [
+  'npm@6',
+  'npm@latest',
   'yarn@latest',
   'pnpm@latest',
 ]
@@ -45,7 +50,6 @@ const defaultBenchmarks = [
   'run-script',
 ]
 
-const root = resolve(__dirname, '..')
 const defaultFixtures = readdir(resolve(__dirname, 'fixtures'))
   .filter((file) => file.endsWith('.json') && !file.startsWith('_'))
   .map((file) => basename(file, '.json'))
@@ -53,7 +57,8 @@ const defaultFixtures = readdir(resolve(__dirname, 'fixtures'))
 const { argv } = yargs(hideBin(process.argv))
   .option('m', {
     alias: 'managers',
-    default: defaultManagers,
+    default: 'all',
+    choices: ['all', ...defaultManagers, ...availableManagers],
     describe: 'the package managers to benchmark (must be npm installable strings)',
     type: 'array',
   })
@@ -143,7 +148,6 @@ for (const manager of argv.managers) {
 const slugs = argv.managers.map(utils.slug)
 
 const hyperfine = spawn('hyperfine', [
-  '--ignore-failure',
   ...(argv.loglevel !== 'silent' ? ['--show-output'] : []),
   ...(argv.report || argv.graph
     ? ['--export-json', `${resolve(root, 'results/temp/results.json')}`] : []),
