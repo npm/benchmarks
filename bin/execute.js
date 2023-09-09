@@ -1,115 +1,21 @@
 #!/usr/bin/env node
 
-const { spawnSync: spawn } = require('child_process')
-const { resolve } = require('path')
-const utils = require('../lib/utils.js')
-const semver = require('semver')
+const { spawnSync } = require('child_process')
+const getArgv = require('../lib/argv.js')
+const benchmarks = require('../lib/benchmarks.js')
 
-const { hideBin } = require('yargs/helpers')
-const yargs = require('yargs/yargs')
+const argv = getArgv(process.argv)
+const benchmark = benchmarks[argv.benchmark]
 
-const { argv } = yargs(hideBin(process.argv))
-  .option('m', {
-    alias: 'manager',
-    demandOption: true,
-    describe: 'the package manager to prepare',
-    type: 'string',
-  })
-  .option('b', {
-    alias: 'benchmark',
-    demandOption: true,
-    describe: 'the benchmark to prepare',
-    type: 'string',
-  })
-  .option('f', {
-    alias: 'fixture',
-    demandOption: true,
-    describe: 'the fixture to prepare',
-    type: 'string',
-  })
-  .help()
-
-const [, flag] = argv.benchmark.split(':')
-const dir = resolve(__dirname, '..', 'temp', argv.manager, argv.fixture, flag || 'default')
-
-const pkg = utils.getPkg(argv.manager)
-const version = semver.parse(pkg.version)
-const bin = utils.getBin(argv.manager)
-const args = []
-
-if (argv.benchmark === 'show-version') {
-  args.push('--version')
-
-  const result = spawn(bin, args, { stdio: 'inherit', cwd: dir })
-  process.exitCode = result.status
-  return
+let args = []
+try {
+  args = benchmark.args(argv)
+} catch (err) {
+  process.exitCode = err.name === 'UnsupportedCommandError' ? 100 : 1
+  throw err
 }
 
-if (argv.benchmark === 'run-script') {
-  args.push('run', 'echo')
-
-  const result = spawn(bin, args, { stdio: 'inherit', cwd: dir })
-  process.exitCode = result.status
-  return
-}
-
-switch (pkg.name) {
-  case 'npm':
-    args.push('install', '--ignore-scripts', '--cache=./cache')
-    switch (version.major) {
-      case 9:
-      case 8:
-      case 7:
-        switch (flag) {
-          case 'audit':
-            args.push('--legacy-peer-deps')
-            break
-          case 'peer-deps':
-            break
-          default:
-            args.push('--no-audit', '--legacy-peer-deps')
-        }
-        break
-      case 6:
-        switch (flag) {
-          case 'audit':
-            break
-          case 'peer-deps':
-            throw new Error(`unsupported flag ${flag}`)
-          default:
-            args.push('--no-audit')
-        }
-        break
-      default:
-        throw new Error(`unsupported npm version ${version.major}`)
-    }
-    break
-  case 'yarn':
-    args.push('--ignore-scripts', '--cache-folder', './cache')
-    switch (flag) {
-      case 'audit':
-        args.push('--audit')
-        break
-      case 'peer-deps':
-        throw new Error(`unsupported flag ${flag}`)
-      default:
-        break
-    }
-    break
-  case 'pnpm':
-    args.push('install', '--ignore-scripts', '--store-dir', './cache')
-    switch (flag) {
-      case 'audit':
-        throw new Error(`unsupported flag ${flag}`)
-      case 'peer-deps':
-        throw new Error(`unsupported flag ${flag}`)
-      default:
-        break
-    }
-    break
-  default:
-    throw new Error(`unsupported package manager ${pkg.name}`)
-}
-
-const result = spawn(bin, args, { stdio: 'inherit', cwd: dir })
-process.exitCode = result.status
+process.exitCode = spawnSync(argv.bin, args, {
+  cwd: argv.cwd,
+  stdio: 'inherit',
+}).status
