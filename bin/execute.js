@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 const { spawnSync } = require('child_process')
-const { execute } = require('../lib/argv.js')
-const benchmarks = require('../lib/benchmarks.js')
+const { execute } = require('./argv.js')
+const benchmarks = require('./benchmarks.js')
 
 let argv
 let args

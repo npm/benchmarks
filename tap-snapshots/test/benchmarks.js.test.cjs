@@ -192,7 +192,7 @@ Object {
       <text x="38" y="139" class="font s4" dominant-baseline="middle" text-anchor="end">run-script</text>
       <text x="38" y="149.5" class="font s4" dominant-baseline="middle" text-anchor="end">cache-only w/ peer-deps</text>
       <text x="38" y="160" class="font s4" dominant-baseline="middle" text-anchor="end">no-clean w/ audit</text>
-      <text x="290" y="173" class="font s4 text" text-anchor="end">Tests run using node.js v20.5.0</text>
+      <text x="290" y="173" class="font s4 text" text-anchor="end">Tests run with Node vVERSION</text>
     </svg>
   ),
 }
@@ -375,7 +375,7 @@ exports[`test/benchmarks.js TAP errors with report/graph > must match snapshot 2
   <text x="290" y="20" class="font s4 text" font-style="italic" text-anchor="end">Installation time in seconds (lower is better)</text>
   <line x1="NaN" y1="31" x2="NaN" y2="52" class="line"></line>
   <text x="38" y="44.5" class="font s4" dominant-baseline="middle" text-anchor="end">clean</text>
-  <text x="290" y="64" class="font s4 text" text-anchor="end">Tests run using node.js v20.5.0</text>
+  <text x="290" y="64" class="font s4 text" text-anchor="end">Tests run with Node vVERSION</text>
 </svg>
 `
 
@@ -517,7 +517,7 @@ exports[`test/benchmarks.js TAP npm 9 vs latest > must match snapshot 3`] = `
   <rect x="40" y="41.5" width="WIDTH" height="6" fill="COLOR" rx="1" ry="1"></rect>
   <line x1="40" y1="31" x2="40" y2="52" class="line"></line>
   <text x="38" y="44.5" class="font s4" dominant-baseline="middle" text-anchor="end">clean</text>
-  <text x="290" y="64" class="font s4 text" text-anchor="end">Tests run using node.js v20.5.0</text>
+  <text x="290" y="64" class="font s4 text" text-anchor="end">Tests run with Node vVERSION</text>
 </svg>
 `
 
@@ -572,6 +572,6 @@ exports[`test/benchmarks.js TAP unsupported flags > must match snapshot 2`] = `
   <line x1="40" y1="31" x2="40" y2="69" class="line"></line>
   <text x="38" y="44.5" class="font s4" dominant-baseline="middle" text-anchor="end">cache-only w/ peer-deps</text>
   <text x="38" y="61.5" class="font s4" dominant-baseline="middle" text-anchor="end">no-clean w/ audit</text>
-  <text x="290" y="81" class="font s4 text" text-anchor="end">Tests run using node.js v20.5.0</text>
+  <text x="290" y="81" class="font s4 text" text-anchor="end">Tests run with Node vVERSION</text>
 </svg>
 `

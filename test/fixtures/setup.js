@@ -1,21 +1,9 @@
-const { resolve, join } = require('path')
+const { join } = require('path')
 const fs = require('fs')
 const { spawnSync: spawn } = require('child_process')
 const { sync: which } = require('which')
 const DIR = require('../../lib/dirs.js')
 const parseResults = require('../../lib/parse-result.js')
-
-const MANAGERS = [
-  'npm@1',
-  'npm@6',
-  'npm@7',
-  'npm@8',
-  'npm@9',
-  'npm@10',
-  'npm@latest',
-  'yarn@latest',
-  'pnpm@latest',
-]
 
 const run = ({
   managers = [],
@@ -33,14 +21,14 @@ const run = ({
 
   return spawn('./bin/benchmark.js', fullArgs, {
     encoding: 'utf-8',
-    cwd: resolve(__dirname, '../..'),
+    cwd: DIR.root,
   })
 }
 
-const downloadManagers = (managers = MANAGERS) => {
+const downloadManagers = (managers) => {
   return run({
     managers,
-    args: ['--download-only', '--clean-managers=false'],
+    args: ['--download-only'],
   })
 }
 
@@ -61,14 +49,12 @@ const runBenchmark = (t, { args = [], fixtures = ['empty'], benchmarks = ['clean
   }
 
   return {
-    ...res,
+    cmd: res,
     results: parseResults(),
-    raw: parseResults.readResults(),
     files: fs.readdirSync(DIR.results).reduce((acc, p) => {
-      if (p === 'results.json') {
-        return acc
+      if (p !== 'results.json') {
+        acc[p] = fs.readFileSync(join(DIR.results, p), { encoding: 'utf-8' })
       }
-      acc[p] = fs.readFileSync(join(DIR.results, p), { encoding: 'utf-8' })
       return acc
     }, {}),
   }
@@ -77,7 +63,6 @@ const runBenchmark = (t, { args = [], fixtures = ['empty'], benchmarks = ['clean
 const hasHyperfine = () => which('hyperfine')
 
 module.exports = {
-  MANAGERS,
   run,
   downloadManagers,
   runBenchmark,
