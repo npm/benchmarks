@@ -1,0 +1,7 @@
+{
+  "name": "single",
+  "version": "1.0.0",
+  "dependencies": {
+    "abbrev": "2.0.0"
+  }
+}
