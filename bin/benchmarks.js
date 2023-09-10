@@ -1,4 +1,4 @@
-const { BENCHMARKS, FLAGS, MANAGERS, UNSUPPORTED_ERROR } = require('./options.js')
+const { BENCHMARKS, FLAGS, MANAGERS, UNSUPPORTED_ERROR } = require('../lib/options.js')
 
 const managers = {
   [MANAGERS.NPM]: ({ manager: { version }, flag }) => {

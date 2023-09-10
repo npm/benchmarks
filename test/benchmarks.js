@@ -1,15 +1,28 @@
 const t = require('tap')
 const { runBenchmark, downloadManagers, hasHyperfine } = require('./fixtures/setup.js')
 
+const MANAGERS = [
+  'npm@1',
+  'npm@6',
+  'npm@7',
+  'npm@8',
+  'npm@9',
+  'npm@10',
+  'npm@latest',
+  'yarn@latest',
+  'pnpm@latest',
+]
+
 t.cleanSnapshot = (s) => s
   .replace(/±\d\.\d+/g, '±STD_DEV')
   .replace(/\d+\.\d{3,}/g, 'TIME.MS')
   .replace(/width="\d+"/g, 'width="WIDTH"')
   .replace(/fill="#[a-z0-9]+"/g, 'fill="COLOR"')
+  .replace(/(Tests run with Node v)[\d.]+/g, '$1VERSION')
 
 t.before(() => {
   hasHyperfine()
-  downloadManagers()
+  downloadManagers(MANAGERS)
 })
 
 t.test('unsupported', t => {
@@ -156,13 +169,3 @@ t.test('all', t => {
 
   t.end()
 })
-
-// t.test('all fixtures - clean benchmark', t => {
-//   const res = runBenchmark(t, {
-//     managers: ['npm@latest'],
-//     benchmarks: ['clean'],
-//     fixtures: ['all'],
-//   })
-//   t.matchSnapshot(res.results)
-//   t.end()
-// })

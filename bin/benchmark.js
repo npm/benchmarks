@@ -11,7 +11,7 @@ const DIR = require('../lib/dirs.js')
 const parseResult = require('../lib/parse-result.js')
 const generateReport = require('../lib/report.js')
 const generateGraphs = require('../lib/graph.js')
-const options = require('../lib/options.js')
+const { managersSet, managers, benchmarks, fixtures } = require('../lib/options.js')
 
 const rimraf = (dir) => fs.rmSync(dir, { recursive: true, force: true })
 
@@ -20,31 +20,29 @@ const mkdirp = (dir) => fs.mkdirSync(dir, { recursive: true })
 const spawn = (bin, args, opts) => spawnSync(bin, args, { stdio: 'inherit', ...opts })
 
 const main = () => {
-  const defaultManagers = options.managers.map(m => `${m}@latest`)
-
   const { argv } = yargs(hideBin(process.argv))
     .option('m', {
       alias: 'managers',
       describe: 'the package managers to benchmark (must be npm installable strings)',
       default: ['all'],
       type: 'array',
-      coerce: (v) => v.includes('all') ? defaultManagers : v,
+      coerce: (v) => v.includes('all') ? managers.map(m => `${m}@latest`) : v,
     })
     .option('b', {
       alias: 'benchmarks',
       describe: 'the benchmarks to run',
       default: ['all'],
-      choices: options.benchmarks,
+      choices: benchmarks,
       type: 'array',
-      coerce: (v) => v.includes('all') ? options.benchmarks : v,
+      coerce: (v) => v.includes('all') ? benchmarks : v,
     })
     .option('f', {
       alias: 'fixtures',
       describe: 'which fixtures to run the given benchmarks against',
       default: ['all'],
-      choices: options.fixtures,
+      choices: fixtures,
       type: 'array',
-      coerce: (v) => v.includes('all') ? options.fixtures : v,
+      coerce: (v) => v.includes('all') ? fixtures : v,
     })
     .option('r', {
       alias: 'report',
@@ -95,7 +93,7 @@ const main = () => {
   mkdirp(DIR.results)
   mkdirp(DIR.managers)
 
-  const managers = argv.managers.map((arg) => {
+  const parsedManagers = argv.managers.map((arg) => {
     const spec = npa(arg)
 
     let alias
@@ -119,12 +117,12 @@ const main = () => {
       spec,
       alias,
       slug: `${spec.name}_${version.replace(/\.+/g, '-').replace(/\/+/g, '_')}`,
-      supported: options.managersSet.has(spec.name),
+      supported: managersSet.has(spec.name),
     }
   })
 
   console.log('pre-installing package managers...')
-  for (const manager of managers) {
+  for (const manager of parsedManagers) {
     if (!manager.supported) {
       throw new Error(`Unsupported manager: \`${manager.name}\``)
     }
@@ -168,7 +166,7 @@ const main = () => {
     '--runs', argv.runs,
     '--parameter-list', 'benchmark', argv.benchmarks.join(','),
     '--parameter-list', 'fixture', argv.fixtures.join(','),
-    '--parameter-list', 'manager', managers.map(m => m.slug).join(','),
+    '--parameter-list', 'manager', parsedManagers.map(m => m.slug).join(','),
     '--prepare', `${join(DIR.bin, 'prepare.js')} {manager} {benchmark} {fixture}`,
     `${join(DIR.bin, 'execute.js')} {manager} {benchmark} {fixture}`,
   ])
@@ -182,7 +180,7 @@ const main = () => {
   const result = parseResult()
 
   if (argv.report) {
-    const report = generateReport(result, ...managers)
+    const report = generateReport(result, ...parsedManagers)
     fs.writeFileSync(join(DIR.results, 'report.md'), report)
   }
 

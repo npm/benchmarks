@@ -2,8 +2,8 @@
 
 const fs = require('fs')
 const { resolve } = require('path')
-const { prepare } = require('../lib/argv.js')
-const benchmarks = require('../lib/benchmarks.js')
+const { prepare } = require('./argv.js')
+const benchmarks = require('./benchmarks.js')
 
 const argv = prepare(process.argv)
 const prepareBenchmark = benchmarks[argv.benchmark].prepare

@@ -1,8 +1,8 @@
 const { spawnSync } = require('child_process')
 const { join } = require('path')
 const fs = require('fs')
-const { getPkg } = require('./manager.js')
-const DIR = require('./dirs.js')
+const { getPkg } = require('../lib/manager.js')
+const DIR = require('../lib/dirs.js')
 
 const remove = (root, paths) => {
   for (const path of paths) {
