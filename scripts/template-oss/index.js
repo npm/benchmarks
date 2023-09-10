@@ -1,3 +1,6 @@
+const { relative } = require('path')
+const DIR = require('../../lib/dirs.js')
+
 module.exports = {
   rootRepo: {
     add: {
@@ -9,4 +12,5 @@ module.exports = {
   windowsCI: false,
   macCI: false,
   ciVersions: 'latest',
+  resultsDir: relative(DIR.root, DIR.results) + '/',
 }

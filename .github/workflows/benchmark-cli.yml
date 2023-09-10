@@ -36,11 +36,8 @@ jobs:
           sudo dpkg -i hyperfine_1.13.0_amd64.deb
       - name: Run Benchmark (Pull-Request)
         env:
-          TARGET_SPEC: ${{ github.event.client_payload.target_spec || 'latest' }}
           PR_ID: ${{ github.event.client_payload.pr_id }}
-          REPO: ${{ github.event.client_payload.repo }}
-          OWNER: ${{ github.event.client_payload.owner }}
-          GITHUB_TOKEN: ${{ secrets.CLI_ISSUE_COMMENT_TOKEN }}
+          TARGET_SPEC: ${{ github.event.client_payload.target_spec || 'latest' }}
         run: |
           ./bin/benchmark.js \
             -m npm@${TARGET_SPEC} npm@npm/cli#pull/${PR_ID}/head \
@@ -51,3 +48,39 @@ jobs:
         with:
           name: results
           path: results/temp/
+      - name: Post Comment
+        uses: actions/github-script@v6
+        env:
+          PR_ID: ${{ github.event.client_payload.pr_id }}
+          REPO: ${{ github.event.client_payload.repo }}
+          OWNER: ${{ github.event.client_payload.owner }}
+        with:
+          github-token: ${{ secrets.CLI_ISSUE_COMMENT_TOKEN }}
+          script: |
+            const fs = require('fs')
+            const path = require('path')
+
+            const { PR_ID, REPO, OWNER } = process.env
+            const COMMENT = fs.readFileSync(path.join('./results/temp/'))
+
+            const updateComment = await github.paginate(github.rest.issues.listComments, {
+              owner: OWNER,
+              repo: REPO,
+              issue_number: PR_ID,
+            }).then(cs => cs.find((c) => c.user.login === 'npm-cli-bot'))
+
+            if (updateComment) {
+              await github.rest.issues.updateComment({
+                owner: OWNER,
+                repo: REPO,
+                comment_id: updateComment.id,
+                body: COMMENT,
+              })
+            } else {
+              await github.issues.createComment({
+                owner: OWNER,
+                repo: REPO,
+                issue_number: PR_ID,
+                body: COMMENT,
+              })
+            }

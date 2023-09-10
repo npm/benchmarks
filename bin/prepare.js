@@ -2,12 +2,16 @@
 
 const fs = require('fs')
 const { resolve } = require('path')
-const getArgv = require('../lib/argv.js')
+const { prepare } = require('../lib/argv.js')
 const benchmarks = require('../lib/benchmarks.js')
 
-const argv = getArgv(process.argv)
-const benchmark = benchmarks[argv.benchmark]
+const argv = prepare(process.argv)
+const prepareBenchmark = benchmarks[argv.benchmark].prepare
 
 fs.mkdirSync(argv.cwd, { recursive: true })
 fs.copyFileSync(argv.fixturePath, resolve(argv.cwd, 'package.json'))
-benchmark.prepare?.(argv)
+
+// prepare is optional for a benchmark
+if (prepareBenchmark) {
+  prepareBenchmark(argv)
+}

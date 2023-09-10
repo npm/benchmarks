@@ -2,4 +2,4 @@
   uses: actions/upload-artifact@v3
   with:
     name: results
-    path: results/temp/
+    path: {{ resultsDir }}

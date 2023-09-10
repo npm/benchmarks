@@ -1,21 +1,22 @@
 #!/usr/bin/env node
 
 const { spawnSync } = require('child_process')
-const getArgv = require('../lib/argv.js')
+const { execute } = require('../lib/argv.js')
 const benchmarks = require('../lib/benchmarks.js')
 
-const argv = getArgv(process.argv)
-const benchmark = benchmarks[argv.benchmark]
-
-let args = []
+let argv
+let args
 try {
-  args = benchmark.args(argv)
+  argv = execute(process.argv)
+  args = benchmarks[argv.benchmark].args(argv)
 } catch (err) {
-  process.exitCode = err.name === 'UnsupportedCommandError' ? 100 : 1
-  throw err
+  return process.exit(err.code ?? /* istanbul ignore next */ 1)
 }
 
-process.exitCode = spawnSync(argv.bin, args, {
+const executeBenchmark = spawnSync(argv.bin, args, {
   cwd: argv.cwd,
   stdio: 'inherit',
-}).status
+})
+if (executeBenchmark.status || executeBenchmark.error) {
+  process.exit(execute.status || 1)
+}

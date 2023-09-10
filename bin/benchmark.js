@@ -11,7 +11,6 @@ const DIR = require('../lib/dirs.js')
 const parseResult = require('../lib/parse-result.js')
 const generateReport = require('../lib/report.js')
 const generateGraphs = require('../lib/graph.js')
-const { postComment } = require('../lib/github.js')
 const options = require('../lib/options.js')
 
 const rimraf = (dir) => fs.rmSync(dir, { recursive: true, force: true })
@@ -89,21 +88,21 @@ const main = () => {
 
   console.log('cleaning up old state')
   rimraf(DIR.temp)
-  rimraf(DIR.cache)
-  rimraf(DIR.logs)
   rimraf(DIR.results)
   if (argv.cleanManagers) {
     rimraf(DIR.managers)
   }
-
   mkdirp(DIR.results)
   mkdirp(DIR.managers)
 
-  const managers = argv.managers.map((name) => {
-    const spec = npa(name)
+  const managers = argv.managers.map((arg) => {
+    const spec = npa(arg)
 
     let alias
     let version
+    // ignoring since tets only use registry package managers
+    // but this supports git specs for PRs and file specs
+    /* istanbul ignore next */
     if (spec.registry) {
       alias = `npm:${spec.name}@${spec.fetchSpec}`
       version = spec.fetchSpec
@@ -116,21 +115,26 @@ const main = () => {
     }
 
     return {
-      name,
+      name: arg,
       spec,
       alias,
-      slug: `${spec.name}__${version.replace(/\.+/g, '-').replace(/\/+/g, '_')}`,
+      slug: `${spec.name}_${version.replace(/\.+/g, '-').replace(/\/+/g, '_')}`,
+      supported: options.managersSet.has(spec.name),
     }
   })
 
   console.log('pre-installing package managers...')
-  for (const { spec, slug, alias } of managers) {
-    if (hasPkg(slug)) {
-      console.log(`skipping ${spec}, already installed as ${slug} / ${alias}`)
+  for (const manager of managers) {
+    if (!manager.supported) {
+      throw new Error(`Unsupported manager: \`${manager.name}\``)
+    }
+
+    if (hasPkg(manager.slug)) {
+      console.log(`skipping ${manager.spec}, already installed as ${manager.alias}`)
       continue
     }
 
-    console.log(`installing ${spec} as ${slug} using ${alias}`)
+    console.log(`installing ${manager.spec} as ${manager.slug} using ${manager.alias}`)
     const result = spawn('npm', [
       'install',
       '--no-fund',
@@ -139,16 +143,16 @@ const main = () => {
       '--silent',
       '--no-progress',
       '--global-style',
+      '--prefix=./managers',
+      '--logs-dir=./managers/logs',
+      '--cache=./managers/cache',
       // force is necessary to overwrite bin files and allow all installations to complete
       '--force',
-      '--logs-dir=./logs',
-      '--cache=./cache',
-      '--prefix=./managers',
-      `${slug}@${alias}`,
+      `${manager.slug}@${manager.alias}`,
     ])
 
     if (result.status !== 0) {
-      throw new Error(`failed to install ${slug}@${alias}`)
+      throw new Error(`failed to install ${manager.slug}@${manager.alias}`)
     }
   }
 
@@ -157,10 +161,7 @@ const main = () => {
     return
   }
 
-  const generate = argv.report || argv.graph
-
   const hyperfine = spawn('hyperfine', [
-    ...(argv.showOutput ? ['--show-output'] : []),
     '--ignore-failure',
     '--export-json', join(DIR.results, 'results.json'),
     '--warmup', argv.warmup,
@@ -172,29 +173,27 @@ const main = () => {
     `${join(DIR.bin, 'execute.js')} {manager} {benchmark} {fixture}`,
   ])
 
+  /* istanbul ignore next */
   if (hyperfine.status !== 0 || hyperfine.error) {
     const err = hyperfine.error ?? new Error(`hyperfine error: ${hyperfine.output.join('\n')}`)
     throw Object.assign(err, { code: hyperfine.status || 1 })
   }
 
-  if (generate) {
-    const result = parseResult()
+  const result = parseResult()
 
-    if (argv.report) {
-      const report = generateReport(result, managers[0], managers[1])
-      fs.writeFileSync(join(DIR.results, 'report.md'), report)
-      postComment(report)
-    }
-
-    if (argv.graph) {
-      const graphs = generateGraphs(result)
-      for (const name in graphs) {
-        fs.writeFileSync(join(DIR.results, `${name}.svg`), graphs[name])
-      }
-    }
-
-    console.log('Generated files:', fs.readdirSync(DIR.results))
+  if (argv.report) {
+    const report = generateReport(result, ...managers)
+    fs.writeFileSync(join(DIR.results, 'report.md'), report)
   }
+
+  if (argv.graph) {
+    const graphs = generateGraphs(result)
+    for (const name in graphs) {
+      fs.writeFileSync(join(DIR.results, `${name}.svg`), graphs[name])
+    }
+  }
+
+  console.log('Generated files:', fs.readdirSync(DIR.results))
 }
 
 try {
