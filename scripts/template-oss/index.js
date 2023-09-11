@@ -12,5 +12,5 @@ module.exports = {
   windowsCI: false,
   macCI: false,
   ciVersions: 'latest',
-  resultsDir: relative(DIR.root, DIR.results) + '/',
+  resultsDir: relative(DIR.root, DIR.results),
 }

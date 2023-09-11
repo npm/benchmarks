@@ -32,7 +32,7 @@ jobs:
             const path = require('path')
 
             const { PR_ID, REPO, OWNER } = process.env
-            const COMMENT = fs.readFileSync(path.join('./{{ resultsDir }}'))
+            const COMMENT = fs.readFileSync(path.join('{{ resultsDir }}', 'report.md'))
 
             const updateComment = await github.paginate(github.rest.issues.listComments, {
               owner: OWNER,
