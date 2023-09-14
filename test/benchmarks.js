@@ -19,6 +19,7 @@ t.cleanSnapshot = (s) => s
   .replace(/width="\d+"/g, 'width="WIDTH"')
   .replace(/fill="#[a-z0-9]+"/g, 'fill="COLOR"')
   .replace(/(Tests run with Node v)[\d.]+/g, '$1VERSION')
+  .replace(/>\d+\.\d+\.\d+<\//g, '>X.Y.Z</')
 
 t.before(() => {
   hasHyperfine()

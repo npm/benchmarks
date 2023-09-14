@@ -148,7 +148,7 @@ Object {
       <rect x="0" y="0" width="WIDTH" height="175" fill="COLOR"></rect>
       <circle cx="44" cy="6" r="4" fill="COLOR"></circle>
       <text x="44" y="14" class="font s4" text-anchor="middle">npm</text>
-      <text x="44" y="18" class="font s3" text-anchor="middle">10.1.0</text>
+      <text x="44" y="18" class="font s3" text-anchor="middle">X.Y.Z</text>
       <text x="40" y="28" class="font s5 text" text-anchor="middle">0</text>
       <text x="40" y="166" class="font s5 text" text-anchor="middle">0</text>
       <line x1="90" y1="31" x2="90" y2="161" class="line width"></line>
@@ -351,10 +351,10 @@ exports[`test/benchmarks.js TAP errors with report/graph > must match snapshot 2
   <rect x="0" y="0" width="WIDTH" height="66" fill="COLOR"></rect>
   <circle cx="44" cy="6" r="4" fill="COLOR"></circle>
   <text x="44" y="14" class="font s4" text-anchor="middle">yarn</text>
-  <text x="44" y="18" class="font s3" text-anchor="middle">1.22.19</text>
+  <text x="44" y="18" class="font s3" text-anchor="middle">X.Y.Z</text>
   <circle cx="60" cy="6" r="4" fill="COLOR"></circle>
   <text x="60" y="14" class="font s4" text-anchor="middle">pnpm</text>
-  <text x="60" y="18" class="font s3" text-anchor="middle">8.7.4</text>
+  <text x="60" y="18" class="font s3" text-anchor="middle">X.Y.Z</text>
   <text x="NaN" y="28" class="font s5 text" text-anchor="middle">0</text>
   <text x="NaN" y="57" class="font s5 text" text-anchor="middle">0</text>
   <line x1="NaN" y1="31" x2="NaN" y2="52" class="line width"></line>
@@ -491,10 +491,10 @@ exports[`test/benchmarks.js TAP npm 9 vs latest > must match snapshot 3`] = `
   <rect x="0" y="0" width="WIDTH" height="66" fill="COLOR"></rect>
   <circle cx="44" cy="6" r="4" fill="COLOR"></circle>
   <text x="44" y="14" class="font s4" text-anchor="middle">npm</text>
-  <text x="44" y="18" class="font s3" text-anchor="middle">9.8.1</text>
+  <text x="44" y="18" class="font s3" text-anchor="middle">X.Y.Z</text>
   <circle cx="60" cy="6" r="4" fill="COLOR"></circle>
   <text x="60" y="14" class="font s4" text-anchor="middle">npm</text>
-  <text x="60" y="18" class="font s3" text-anchor="middle">10.1.0</text>
+  <text x="60" y="18" class="font s3" text-anchor="middle">X.Y.Z</text>
   <text x="40" y="28" class="font s5 text" text-anchor="middle">0</text>
   <text x="40" y="57" class="font s5 text" text-anchor="middle">0</text>
   <line x1="90" y1="31" x2="90" y2="52" class="line width"></line>
@@ -546,10 +546,10 @@ exports[`test/benchmarks.js TAP unsupported flags > must match snapshot 2`] = `
   <rect x="0" y="0" width="WIDTH" height="83" fill="COLOR"></rect>
   <circle cx="44" cy="6" r="4" fill="COLOR"></circle>
   <text x="44" y="14" class="font s4" text-anchor="middle">yarn</text>
-  <text x="44" y="18" class="font s3" text-anchor="middle">1.22.19</text>
+  <text x="44" y="18" class="font s3" text-anchor="middle">X.Y.Z</text>
   <circle cx="60" cy="6" r="4" fill="COLOR"></circle>
   <text x="60" y="14" class="font s4" text-anchor="middle">pnpm</text>
-  <text x="60" y="18" class="font s3" text-anchor="middle">8.7.4</text>
+  <text x="60" y="18" class="font s3" text-anchor="middle">X.Y.Z</text>
   <text x="40" y="28" class="font s5 text" text-anchor="middle">0</text>
   <text x="40" y="74" class="font s5 text" text-anchor="middle">0</text>
   <line x1="90" y1="31" x2="90" y2="69" class="line width"></line>
