@@ -18,12 +18,12 @@ on:
 
 jobs:
   benchmark:
-    {{> job jobName="Benchmark" }}
-      {{> stepHyperfine }}
+    {{> jobYml jobName="Benchmark" }}
+      {{> stepHyperfineYml }}
       - name: Run Benchmarks
         run: |
           ./bin/benchmark.js -m $\{{ github.event.inputs.managers }} \
             -b $\{{ github.event.inputs.benchmarks }} \
             -f $\{{ github.event.inputs.fixtures }} \
             -g
-      {{> stepUpload }}
+      {{> stepUploadYml }}

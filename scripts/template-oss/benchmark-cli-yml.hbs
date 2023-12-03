@@ -4,11 +4,11 @@ on: repository_dispatch
 
 jobs:
   benchmark:
-    {{> job
+    {{> jobYml
       jobName="Benchmark CLI"
       jobIf="startsWith(github.event.action, 'pull_request') || startsWith(github.event.action, 'issue_comment')"
     }}
-      {{> stepHyperfine }}
+      {{> stepHyperfineYml }}
       - name: Run Benchmark (Pull-Request)
         env:
           PR_ID: $\{{ github.event.client_payload.pr_id }}
@@ -18,7 +18,7 @@ jobs:
             -m npm@${TARGET_SPEC} npm@npm/cli#pull/${PR_ID}/head \
             -f app-large app-medium \
             -r
-      {{> stepUpload }}
+      {{> stepUploadYml }}
       - name: Post Comment
         uses: actions/github-script@v6
         env:
