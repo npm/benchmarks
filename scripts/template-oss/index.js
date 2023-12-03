@@ -4,8 +4,8 @@ const DIR = require('../../lib/dirs.js')
 module.exports = {
   rootRepo: {
     add: {
-      '.github/workflows/benchmark-cli.yml': 'benchmark-cli.yml',
-      '.github/workflows/benchmark-manual.yml': 'benchmark-manual.yml',
+      '.github/workflows/benchmark-cli.yml': 'benchmark-cli-yml.hbs',
+      '.github/workflows/benchmark-manual.yml': 'benchmark-manual-yml.hbs',
     },
   },
   lockfile: true,
