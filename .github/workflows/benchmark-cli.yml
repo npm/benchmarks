@@ -71,18 +71,9 @@ jobs:
               issue_number: PR_ID,
             }).then(cs => cs.find((c) => c.user.login === 'npm-cli-bot'))
 
-            if (updateComment) {
-              await github.rest.issues.updateComment({
-                owner: OWNER,
-                repo: REPO,
-                comment_id: updateComment.id,
-                body: COMMENT,
-              })
-            } else {
-              await github.issues.createComment({
-                owner: OWNER,
-                repo: REPO,
-                issue_number: PR_ID,
-                body: COMMENT,
-              })
-            }
+            await github.rest.issues[updateComment ? 'updateComment' : 'createComment']({
+              owner: OWNER,
+              repo: REPO,
+              body: COMMENT,
+              ...updateComment ? { comment_id: updateComment.id } : { issue_number: PR_ID },
+            })
